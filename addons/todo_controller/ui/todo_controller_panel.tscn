@@ -69,6 +69,7 @@ layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = -2
 theme_override_constants/autohide = 1
+split_offset = 351
 
 [node name="ScriptPanel" type="PanelContainer" parent="AnnotationPanelContainer/MarginContainer/HSplitContainer/ScrpitListHSplit"]
 custom_minimum_size = Vector2(150, 0)
@@ -188,3 +189,9 @@ text = "类型过滤器"
 label_settings = SubResource("LabelSettings_hmdan")
 horizontal_alignment = 1
 vertical_alignment = 1
+
+[node name="EX_Control" type="Control" parent="AnnotationPanelContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 0

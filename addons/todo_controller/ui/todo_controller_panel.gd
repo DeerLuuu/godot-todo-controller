@@ -1,6 +1,7 @@
 @tool
 class_name TodoControllerPanel extends TabContainer
 
+const SCRIPT_RMB_PANEL = preload("res://addons/todo_controller/ui/script_rmb_panel.tscn")
 const STAR : String = "🩷"
 const NOT_STAR : String = "🩶"
 
@@ -9,6 +10,7 @@ const NOT_STAR : String = "🩶"
 @onready var scrpit_list_h_split: HSplitContainer = %ScrpitListHSplit
 @onready var star_script_tree: Tree = %StarScriptTree
 @onready var tree_v_box: VBoxContainer = %TreeVBox
+@onready var ex_control: Control = %EX_Control
 
 var star_list : Array = ["res://addons/todo_controller/todo_controller.gd"]
 var left_list_x : float
@@ -18,11 +20,13 @@ var is_selected_mode : bool = false
 var is_star_mode : bool = false
 var is_selected_mode_index : int
 
+var current_tree : Tree
+
 func _ready() -> void:
-	script_tree.item_activated.connect(_on_script_tree_item_activated)
+	script_tree.item_activated.connect(_on_script_tree_item_activated.bind(script_tree))
 	script_tree.item_collapsed.connect(_on_item_collapsed)
 	script_tree.item_mouse_selected.connect(_on_script_tree_item_mouse_selected)
-	star_script_tree.item_activated.connect(_on_star_script_tree_item_activated)
+	star_script_tree.item_activated.connect(_on_script_tree_item_activated.bind(star_script_tree))
 	star_script_tree.item_collapsed.connect(_on_item_collapsed)
 	star_script_tree.item_mouse_selected.connect(_on_star_script_tree_item_mouse_selected)
 	annotation_code_tree.item_selected.connect(_on_annotation_code_tree_item_selected)
@@ -83,20 +87,24 @@ func update_star_script_tree() -> void:
 		tree_item.set_custom_color(0, Color.AQUAMARINE)
 
 # TODO 脚本列表双击时的方法
-func _on_script_tree_item_activated() -> void:
-	if script_tree.get_selected().get_text(0) == "所有脚本": return
-	var script_path : String = script_list[script_tree.get_selected().get_index()]
-	EditorInterface.edit_resource(load(script_path))
+func _on_script_tree_item_activated(tree : Tree) -> void:
+	var script_path : String
+	if tree == script_tree:
+		if not script_tree.get_selected().get_text(0) == "所有脚本":
+			script_path = script_list[script_tree.get_selected().get_index()]
+	elif tree == star_script_tree:
+		if not star_script_tree.get_selected().get_text(0) == "收藏脚本":
+			script_path = star_list[star_script_tree.get_selected().get_index()]
 
-# TODO 收藏列表双击时的方法
-func _on_star_script_tree_item_activated() -> void:
-	if star_script_tree.get_selected().get_text(0) == "收藏脚本": return
-	var script_path : String = star_list[star_script_tree.get_selected().get_index()]
 	EditorInterface.edit_resource(load(script_path))
 
 # TODO 树被折叠时的方法
 func _on_item_collapsed(_item : TreeItem) -> void:
 	# FIXME 这里使用了取巧的方式显示和隐藏实现了折叠树的空间刷新，后续尝试寻找解决方案
+	update_item_collapsed()
+
+# TODO 更新树物品折叠的空间刷新方法
+func update_item_collapsed() -> void:
 	star_script_tree.hide()
 	star_script_tree.show()
 	script_tree.hide()
@@ -106,6 +114,7 @@ func _on_item_collapsed(_item : TreeItem) -> void:
 func _on_star_script_tree_item_mouse_selected(_mouse_position: Vector2, mouse_button_index: int) -> void:
 	# 鼠标左键输入
 	if mouse_button_index == MOUSE_BUTTON_LEFT:
+		current_tree = star_script_tree
 		is_star_mode = true
 		annotation_code_tree.clear()
 		var file = FileAccess.open(star_list[star_script_tree.get_selected().get_index()], FileAccess.READ)
@@ -162,16 +171,18 @@ func _on_star_script_tree_item_mouse_selected(_mouse_position: Vector2, mouse_bu
 	if mouse_button_index == MOUSE_BUTTON_RIGHT:
 		if star_script_tree.get_selected().get_text(0) == "收藏脚本": return
 		var selected_script : String = star_list[star_script_tree.get_selected().get_index()]
-		star_list.erase(selected_script)
 
-		# FIXME 这里后面得写一个右键菜单，否则刷新会有bug
-		#update_script_tree()
-		#update_star_script_tree()
+		for i in ex_control.get_children():
+			i.queue_free()
+		var script_rmb_panel : ScriptRMBPanel = SCRIPT_RMB_PANEL.instantiate()
+		ex_control.add_child(script_rmb_panel)
+		script_rmb_panel.set_script_rmb(selected_script, self)
 
 # TODO 所有脚本树被鼠标点击的方法
 func _on_script_tree_item_mouse_selected(mouse_position: Vector2, mouse_button_index: int) -> void:
 	# 鼠标左键输入
 	if mouse_button_index == MOUSE_BUTTON_LEFT:
+		current_tree = script_tree
 		is_star_mode = false
 		annotation_code_tree.clear()
 		var file = FileAccess.open(script_list[script_tree.get_selected().get_index()], FileAccess.READ)
@@ -183,6 +194,7 @@ func _on_script_tree_item_mouse_selected(mouse_position: Vector2, mouse_button_i
 			var root_item : TreeItem = annotation_code_tree.create_item()
 			root_item.set_text(0, "所有脚本")
 			root_item.set_custom_color(0, Color.AQUA)
+
 			for i in script_list.size():
 				var _item : TreeItem = annotation_code_tree.create_item()
 				_item.set_text(0, script_list[i].split("/")[-1])
@@ -228,12 +240,12 @@ func _on_script_tree_item_mouse_selected(mouse_position: Vector2, mouse_button_i
 	if mouse_button_index == MOUSE_BUTTON_RIGHT:
 		if script_tree.get_selected().get_text(0) == "所有脚本": return
 		var selected_script : String = script_list[script_tree.get_selected().get_index()]
-		if star_list.has(selected_script):
-			star_list.erase(selected_script)
-		else :
-			star_list.append(selected_script)
-		update_script_tree()
-		update_star_script_tree()
+
+		for i in ex_control.get_children():
+			i.queue_free()
+		var script_rmb_panel : ScriptRMBPanel = SCRIPT_RMB_PANEL.instantiate()
+		ex_control.add_child(script_rmb_panel)
+		script_rmb_panel.set_script_rmb(selected_script, self)
 
 # TODO 注释列表被点击时的方法
 func _on_annotation_code_tree_item_selected() -> void:

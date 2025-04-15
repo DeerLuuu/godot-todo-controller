@@ -1,0 +1,65 @@
+[gd_scene load_steps=3 format=3 uid="uid://ds3a5d7fxgqh8"]
+
+[ext_resource type="Script" uid="uid://ffk1sp20d6lu" path="res://addons/todo_controller/ui/script_rmb_panel.gd" id="1_tan0d"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_rlg7m"]
+content_margin_left = 8.0
+content_margin_top = 8.0
+content_margin_right = 8.0
+content_margin_bottom = 8.0
+bg_color = Color(0.117647, 0.117647, 0.117647, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.101961, 0.101961, 0.101961, 1)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+
+[node name="ScriptRMBPanel" type="PanelContainer"]
+offset_right = 40.0
+offset_bottom = 40.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_rlg7m")
+script = ExtResource("1_tan0d")
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+layout_mode = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 8
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer"]
+layout_mode = 2
+
+[node name="StarButton" type="Button" parent="MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(150, 0)
+layout_mode = 2
+text = "收藏"
+
+[node name="UnStarButton" type="Button" parent="MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(150, 0)
+layout_mode = 2
+disabled = true
+text = "取消收藏"
+
+[node name="OpenScriptButton" type="Button" parent="MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(150, 0)
+layout_mode = 2
+text = "打开脚本"
+
+[node name="CancelButton" type="Button" parent="MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(150, 0)
+layout_mode = 2
+text = "取消"
+
+[connection signal="pressed" from="MarginContainer/VBoxContainer/StarButton" to="." method="_on_star_button_pressed"]
+[connection signal="pressed" from="MarginContainer/VBoxContainer/UnStarButton" to="." method="_on_un_star_button_pressed"]
+[connection signal="pressed" from="MarginContainer/VBoxContainer/OpenScriptButton" to="." method="_on_open_script_button_pressed"]
+[connection signal="pressed" from="MarginContainer/VBoxContainer/CancelButton" to="." method="_on_cancel_button_pressed"]
