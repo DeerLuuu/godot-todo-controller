@@ -5,7 +5,7 @@ const TODO_CONTROLLER_PANEL = preload("res://addons/todo_controller/ui/todo_cont
 
 var todo_controller_panel : TodoControllerPanel
 
-# TODO：这是一段TODO注释
+# TODO：这是一段todo注释
 # HACK：这是一段HACK注释
 # WARNING：这是一段HACK注释
 # FIXME：这是一段HACK注释

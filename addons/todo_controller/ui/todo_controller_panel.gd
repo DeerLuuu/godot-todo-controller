@@ -11,6 +11,8 @@ const NOT_STAR : String = "🩶"
 @onready var star_script_tree: Tree = %StarScriptTree
 @onready var tree_v_box: VBoxContainer = %TreeVBox
 @onready var ex_control: Control = %EX_Control
+@onready var scratch_edit: LineEdit = %ScratchEdit
+@onready var case_sensitive_button: CheckButton = %CaseSensitiveButton
 
 var star_list : Array:
 	set(v):
@@ -25,6 +27,7 @@ var is_selected_mode : bool = false
 var is_star_mode : bool = false
 var is_selected_mode_index : int
 var current_tree : Tree
+var is_case_sensitive : bool = false
 
 func _ready() -> void:
 	script_tree.item_activated.connect(_on_script_tree_item_activated.bind(script_tree))
@@ -34,6 +37,8 @@ func _ready() -> void:
 	star_script_tree.item_collapsed.connect(_on_item_collapsed)
 	star_script_tree.item_mouse_selected.connect(_on_star_script_tree_item_mouse_selected)
 	annotation_code_tree.item_selected.connect(_on_annotation_code_tree_item_selected)
+	scratch_edit.text_changed.connect(_on_scratch_edit_text_changed)
+	case_sensitive_button.toggled.connect(_on_case_sensitive_button_toggled)
 
 	var settings = EditorInterface.get_editor_settings()
 	keywords = settings.get_setting("text_editor/theme/highlighting/comment_markers/warning_list")
@@ -276,10 +281,14 @@ func _on_annotation_code_tree_item_selected() -> void:
 	if annotation_code_tree.get_selected().get_text(0) == "所有脚本": return
 	if annotation_code_tree.get_selected().get_text(0) == "收藏脚本": return
 	if annotation_code_tree.get_selected().get_text(0).get_extension() == "gd":
-		var script_path : String = \
-			star_list[annotation_code_tree.get_selected().get_parent().get_index()] \
-			if is_star_mode else \
-			script_list[annotation_code_tree.get_selected().get_parent().get_index()]
+		var script_path : String
+
+		print(annotation_code_tree.get_selected().get_text(0))
+
+		for i : String in script_list:
+			if not i.contains(annotation_code_tree.get_selected().get_text(0)): continue
+			script_path = i
+
 		if is_selected_mode:
 			script_path = star_list[is_selected_mode_index] if is_star_mode else script_list[is_selected_mode_index]
 		EditorInterface.edit_resource(load(script_path))
@@ -290,10 +299,12 @@ func _on_annotation_code_tree_item_selected() -> void:
 	if key != "":
 		var line : int = int(annotation_code_tree.get_selected().get_text(0).split(" ")[0].erase(0).left(5))
 		print(line)
-		var script_path : String = \
-			star_list[annotation_code_tree.get_selected().get_parent().get_index()] \
-			if is_star_mode else \
-			script_list[annotation_code_tree.get_selected().get_parent().get_index()]
+		var script_path : String
+
+		for i : String in script_list:
+			if not i.contains(annotation_code_tree.get_selected().get_text(0)): continue
+			script_path = i
+
 		if is_selected_mode:
 			script_path = star_list[is_selected_mode_index] if is_star_mode else script_list[is_selected_mode_index]
 		EditorInterface.edit_resource(load(script_path))
@@ -333,3 +344,29 @@ func get_scripte_list(root_path : String) -> Array:
 # TODO 判断是否是不需要的文件夹
 func _is_special_dir(name: String) -> bool:
 	return name in [".", ".."]
+
+# TODO 区分大小写
+func _on_case_sensitive_button_toggled(toggled : bool) -> void:
+	is_case_sensitive = toggled
+	scratch_edit.text_changed.emit(scratch_edit.text)
+
+# TODO 搜索编辑器中的文本改变时的方法
+func _on_scratch_edit_text_changed(new_text: String) -> void:
+	current_tree.item_mouse_selected.emit(Vector2.ZERO, 1)
+	if new_text != "":
+		for s in annotation_code_tree.get_root().get_children():
+			var is_has_annotion : bool = false
+			for i in s.get_children():
+				if is_case_sensitive:
+					if i.get_text(0).contains(new_text):
+						is_has_annotion = true
+						continue
+				else :
+					if i.get_text(0).to_lower().contains(new_text.to_lower()):
+						is_has_annotion = true
+						continue
+				s.remove_child(i)
+				i.free()
+			if not is_has_annotion:
+				annotation_code_tree.get_root().remove_child(s)
+				s.free()

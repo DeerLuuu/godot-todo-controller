@@ -25,6 +25,8 @@ corner_radius_bottom_right = 16
 corner_radius_bottom_left = 16
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_a6d4f"]
+content_margin_left = 8.0
+content_margin_right = 8.0
 bg_color = Color(0.117647, 0.117647, 0.117647, 1)
 corner_radius_top_left = 16
 corner_radius_top_right = 16
@@ -150,10 +152,21 @@ theme_override_constants/margin_bottom = 4
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="LineEdit" type="LineEdit" parent="AnnotationPanelContainer/MarginContainer/HSplitContainer/ScrpitListHSplit/PanelContainer2/MarginContainer/VBoxContainer"]
+[node name="HBoxContainer" type="HBoxContainer" parent="AnnotationPanelContainer/MarginContainer/HSplitContainer/ScrpitListHSplit/PanelContainer2/MarginContainer/VBoxContainer"]
 layout_mode = 2
+
+[node name="ScratchEdit" type="LineEdit" parent="AnnotationPanelContainer/MarginContainer/HSplitContainer/ScrpitListHSplit/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
 theme_override_styles/normal = SubResource("StyleBoxFlat_a6d4f")
 placeholder_text = "请输入要搜索的备注/脚本/"
+clear_button_enabled = true
+
+[node name="CaseSensitiveButton" type="CheckButton" parent="AnnotationPanelContainer/MarginContainer/HSplitContainer/ScrpitListHSplit/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "区分大小写"
 
 [node name="PanelContainer" type="PanelContainer" parent="AnnotationPanelContainer/MarginContainer/HSplitContainer/ScrpitListHSplit/PanelContainer2/MarginContainer/VBoxContainer"]
 layout_mode = 2
