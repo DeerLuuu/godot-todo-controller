@@ -1,5 +1,0 @@
-[gd_scene format=3 uid="uid://boq1t0t2841l8"]
-
-[node name="AnnotationBar" type="PanelContainer"]
-offset_right = 40.0
-offset_bottom = 40.0

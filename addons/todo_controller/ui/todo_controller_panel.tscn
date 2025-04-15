@@ -121,7 +121,6 @@ size_flags_vertical = 3
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 4
-mouse_filter = 2
 allow_reselect = true
 allow_rmb_select = true
 scroll_horizontal_enabled = false

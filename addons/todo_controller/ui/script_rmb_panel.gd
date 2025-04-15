@@ -1,4 +1,5 @@
 @tool
+# INFO 脚本列表右键菜单面板类
 class_name ScriptRMBPanel extends PanelContainer
 
 var star_button: Button

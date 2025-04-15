@@ -4,4 +4,4 @@
 
 [resource]
 script = ExtResource("1_f6quq")
-star_list = ["res://addons/todo_controller/todo_controller.gd", "res://addons/todo_controller/ui/script_rmb_panel.gd"]
+star_list = ["res://addons/todo_controller/ui/todo_controller_panel.gd", "res://addons/todo_controller/config.gd"]

@@ -1,4 +1,5 @@
 @tool
+# INFO 插件脚本
 extends EditorPlugin
 
 const TODO_CONTROLLER_PANEL = preload("res://addons/todo_controller/ui/todo_controller_panel.tscn")

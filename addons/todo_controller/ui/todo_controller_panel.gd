@@ -1,4 +1,5 @@
 @tool
+# INFO Todo Controller 的主要面板类
 class_name TodoControllerPanel extends TabContainer
 
 const SCRIPT_RMB_PANEL = preload("res://addons/todo_controller/ui/script_rmb_panel.tscn")
@@ -6,11 +7,13 @@ const STAR : String = "🩷"
 const NOT_STAR : String = "🩶"
 
 @onready var script_tree: Tree = %ScriptTree
-@onready var annotation_code_tree: Tree = %AnnotationCodeTree
-@onready var scrpit_list_h_split: HSplitContainer = %ScrpitListHSplit
 @onready var star_script_tree: Tree = %StarScriptTree
+@onready var annotation_code_tree: Tree = %AnnotationCodeTree
+
+@onready var scrpit_list_h_split: HSplitContainer = %ScrpitListHSplit
 @onready var tree_v_box: VBoxContainer = %TreeVBox
 @onready var ex_control: Control = %EX_Control
+
 @onready var scratch_edit: LineEdit = %ScratchEdit
 @onready var case_sensitive_button: CheckButton = %CaseSensitiveButton
 
@@ -21,11 +24,11 @@ var star_list : Array:
 		config.star_list = star_list
 		ResourceSaver.save(config, "res://addons/todo_controller/config/config.tres")
 var script_list : Array
+
 var left_list_x : float
-var keywords : String
-var is_selected_mode : bool = false
-var is_star_mode : bool = false
-var is_selected_mode_index : int
+var keywords : Array
+var keywords_notice : Array
+var keywords_critical : Array
 var current_tree : Tree
 var is_case_sensitive : bool = false
 
@@ -33,15 +36,20 @@ func _ready() -> void:
 	script_tree.item_activated.connect(_on_script_tree_item_activated.bind(script_tree))
 	script_tree.item_collapsed.connect(_on_item_collapsed)
 	script_tree.item_mouse_selected.connect(_on_script_tree_item_mouse_selected)
+
 	star_script_tree.item_activated.connect(_on_script_tree_item_activated.bind(star_script_tree))
 	star_script_tree.item_collapsed.connect(_on_item_collapsed)
 	star_script_tree.item_mouse_selected.connect(_on_star_script_tree_item_mouse_selected)
+
 	annotation_code_tree.item_selected.connect(_on_annotation_code_tree_item_selected)
 	scratch_edit.text_changed.connect(_on_scratch_edit_text_changed)
 	case_sensitive_button.toggled.connect(_on_case_sensitive_button_toggled)
 
 	var settings = EditorInterface.get_editor_settings()
-	keywords = settings.get_setting("text_editor/theme/highlighting/comment_markers/warning_list")
+	keywords = settings.get_setting("text_editor/theme/highlighting/comment_markers/warning_list").split(",")
+	keywords_notice = settings.get_setting("text_editor/theme/highlighting/comment_markers/notice_list").split(",")
+	keywords_critical = settings.get_setting("text_editor/theme/highlighting/comment_markers/critical_list").split(",")
+
 
 	reset_todo_controller()
 	script_tree_can_selected()
@@ -137,20 +145,19 @@ func _on_star_script_tree_item_mouse_selected(_mouse_position: Vector2, mouse_bu
 	# 鼠标左键输入
 	if mouse_button_index == MOUSE_BUTTON_LEFT:
 		current_tree = star_script_tree
-		is_star_mode = true
 		annotation_code_tree.clear()
-		print(script_list)
+
 		var file = FileAccess.open(star_list[current_tree.get_selected().get_index()], FileAccess.READ)
 		var script_text : String = file.get_as_text()
 		var script_rows : Array = script_text.split("\n")
 
 		if star_script_tree.get_selected().get_text(0) == "收藏脚本":
-			is_selected_mode = false
 			var root_item : TreeItem = annotation_code_tree.create_item()
 			root_item.set_text(0, "收藏脚本")
 			root_item.set_custom_color(0, Color.AQUA)
 			for i in star_list.size():
 				var _item : TreeItem = annotation_code_tree.create_item()
+				var item_has_annotation : bool = false
 				_item.set_text(0, star_list[i].split("/")[-1])
 				_item.set_custom_color(0, Color.AQUAMARINE)
 
@@ -162,19 +169,29 @@ func _on_star_script_tree_item_mouse_selected(_mouse_position: Vector2, mouse_bu
 					if not script_row.begins_with("# "): continue
 
 					script_row = script_row.erase(0, 2)
-					var keywords_list : Array = keywords.split(",")
 
-					for k in keywords_list.size():
-						if not script_row.begins_with(keywords_list[k]): continue
-						var item = _item.create_child()
+					if get_annotation_key(script_row) in keywords:
+						var item : TreeItem = _item.create_child()
 						item.set_text(0, "(%04d) - " % (row + 1) + script_row)
 						item.set_custom_color(0, Color.YELLOW)
+						item_has_annotation = true
+					if get_annotation_key(script_row) in keywords_critical:
+						var item = _item.create_child()
+						item.set_text(0, "(%04d) - " % (row + 1) + script_row)
+						item.set_custom_color(0, Color.INDIAN_RED)
+						item_has_annotation = true
+					if get_annotation_key(script_row) in keywords_notice:
+						var item = _item.create_child()
+						item.set_text(0, "(%04d) - " % (row + 1) + script_row)
+						item.set_custom_color(0, Color.PALE_GREEN)
+						item_has_annotation = true
+				if not item_has_annotation:
+					root_item.remove_child(_item)
+					_item.free()
 			return
 
-		is_selected_mode = true
-		is_selected_mode_index = star_script_tree.get_selected().get_index()
 		var root_item : TreeItem = annotation_code_tree.create_item()
-		root_item.set_text(0, star_list[is_selected_mode_index].split("/")[-1])
+		root_item.set_text(0, star_list[star_script_tree.get_selected().get_index()].split("/")[-1])
 		root_item.set_custom_color(0, Color.AQUAMARINE)
 
 		for row in script_rows.size():
@@ -182,13 +199,19 @@ func _on_star_script_tree_item_mouse_selected(_mouse_position: Vector2, mouse_bu
 			if not script_row.begins_with("# "): continue
 
 			script_row = script_row.erase(0, 2)
-			var keywords_list : Array = keywords.split(",")
 
-			for k in keywords_list.size():
-				if not script_row.begins_with(keywords_list[k]): continue
+			if get_annotation_key(script_row) in keywords:
 				var item : TreeItem = root_item.create_child()
 				item.set_text(0, "(%04d) - " % (row + 1) + script_row)
 				item.set_custom_color(0, Color.YELLOW)
+			if get_annotation_key(script_row) in keywords_critical:
+				var item = root_item.create_child()
+				item.set_text(0, "(%04d) - " % (row + 1) + script_row)
+				item.set_custom_color(0, Color.INDIAN_RED)
+			if get_annotation_key(script_row) in keywords_notice:
+				var item = root_item.create_child()
+				item.set_text(0, "(%04d) - " % (row + 1) + script_row)
+				item.set_custom_color(0, Color.PALE_GREEN)
 
 	# 鼠标右键输入
 	if mouse_button_index == MOUSE_BUTTON_RIGHT:
@@ -206,14 +229,12 @@ func _on_script_tree_item_mouse_selected(mouse_position: Vector2, mouse_button_i
 	# 鼠标左键输入
 	if mouse_button_index == MOUSE_BUTTON_LEFT:
 		current_tree = script_tree
-		is_star_mode = false
 		annotation_code_tree.clear()
 		var file = FileAccess.open(script_list[current_tree.get_selected().get_index()], FileAccess.READ)
 		var script_text : String = file.get_as_text()
 		var script_rows : Array = script_text.split("\n")
 
 		if script_tree.get_selected().get_text(0) == "所有脚本":
-			is_selected_mode = false
 			var root_item : TreeItem = annotation_code_tree.create_item()
 			root_item.set_text(0, "所有脚本")
 			root_item.set_custom_color(0, Color.AQUA)
@@ -232,13 +253,21 @@ func _on_script_tree_item_mouse_selected(mouse_position: Vector2, mouse_button_i
 					if not script_row.begins_with("# "): continue
 
 					script_row = script_row.erase(0, 2)
-					var keywords_list : Array = keywords.split(",")
 
-					for k in keywords_list.size():
-						if not script_row.begins_with(keywords_list[k]): continue
+					if get_annotation_key(script_row) in keywords:
 						var item = _item.create_child()
 						item.set_text(0, "(%04d) - " % (row + 1) + script_row)
 						item.set_custom_color(0, Color.YELLOW)
+						item_has_annotation = true
+					if get_annotation_key(script_row) in keywords_critical:
+						var item = _item.create_child()
+						item.set_text(0, "(%04d) - " % (row + 1) + script_row)
+						item.set_custom_color(0, Color.INDIAN_RED)
+						item_has_annotation = true
+					if get_annotation_key(script_row) in keywords_notice:
+						var item = _item.create_child()
+						item.set_text(0, "(%04d) - " % (row + 1) + script_row)
+						item.set_custom_color(0, Color.PALE_GREEN)
 						item_has_annotation = true
 
 				if not item_has_annotation:
@@ -246,10 +275,8 @@ func _on_script_tree_item_mouse_selected(mouse_position: Vector2, mouse_button_i
 					_item.free()
 			return
 
-		is_selected_mode = true
-		is_selected_mode_index = script_tree.get_selected().get_index()
 		var root_item : TreeItem = annotation_code_tree.create_item()
-		root_item.set_text(0, script_list[is_selected_mode_index].split("/")[-1])
+		root_item.set_text(0, script_list[script_tree.get_selected().get_index()].split("/")[-1])
 		root_item.set_custom_color(0, Color.AQUAMARINE)
 
 		for row in script_rows.size():
@@ -257,13 +284,19 @@ func _on_script_tree_item_mouse_selected(mouse_position: Vector2, mouse_button_i
 			if not script_row.begins_with("# "): continue
 
 			script_row = script_row.erase(0, 2)
-			var keywords_list : Array = keywords.split(",")
 
-			for k in keywords_list.size():
-				if not script_row.begins_with(keywords_list[k]): continue
+			if get_annotation_key(script_row) in keywords:
 				var item : TreeItem = root_item.create_child()
 				item.set_text(0, "(%04d) - " % (row + 1) + script_row)
 				item.set_custom_color(0, Color.YELLOW)
+			if get_annotation_key(script_row) in keywords_critical:
+				var item = root_item.create_child()
+				item.set_text(0, "(%04d) - " % (row + 1) + script_row)
+				item.set_custom_color(0, Color.INDIAN_RED)
+			if get_annotation_key(script_row) in keywords_notice:
+				var item = root_item.create_child()
+				item.set_text(0, "(%04d) - " % (row + 1) + script_row)
+				item.set_custom_color(0, Color.PALE_GREEN)
 
 	# 鼠标右键输入
 	if mouse_button_index == MOUSE_BUTTON_RIGHT:
@@ -283,14 +316,11 @@ func _on_annotation_code_tree_item_selected() -> void:
 	if annotation_code_tree.get_selected().get_text(0).get_extension() == "gd":
 		var script_path : String
 
-		print(annotation_code_tree.get_selected().get_text(0))
-
 		for i : String in script_list:
 			if not i.contains(annotation_code_tree.get_selected().get_text(0)): continue
 			script_path = i
+			break
 
-		if is_selected_mode:
-			script_path = star_list[is_selected_mode_index] if is_star_mode else script_list[is_selected_mode_index]
 		EditorInterface.edit_resource(load(script_path))
 		return
 
@@ -298,24 +328,26 @@ func _on_annotation_code_tree_item_selected() -> void:
 	key = get_annotation_key(key)
 	if key != "":
 		var line : int = int(annotation_code_tree.get_selected().get_text(0).split(" ")[0].erase(0).left(5))
-		print(line)
 		var script_path : String
 
 		for i : String in script_list:
-			if not i.contains(annotation_code_tree.get_selected().get_text(0)): continue
+			if not i.contains(annotation_code_tree.get_selected().get_parent().get_text(0)): continue
 			script_path = i
 
-		if is_selected_mode:
-			script_path = star_list[is_selected_mode_index] if is_star_mode else script_list[is_selected_mode_index]
 		EditorInterface.edit_resource(load(script_path))
 		EditorInterface.get_script_editor().goto_line(line - 1)
 
 # TODO 获取某行注释的注释关键字的方法
 func get_annotation_key(annotation : String) -> String:
-	var keywords_list : Array = keywords.split(",")
-	for i in keywords_list.size():
-		if not annotation.begins_with(keywords_list[i]): continue
-		return keywords_list[i]
+	for i in keywords.size():
+		if not annotation.contains(keywords[i]): continue
+		return keywords[i]
+	for i in keywords_critical.size():
+		if not annotation.contains(keywords_critical[i]): continue
+		return keywords_critical[i]
+	for i in keywords_notice.size():
+		if not annotation.contains(keywords_notice[i]): continue
+		return keywords_notice[i]
 	return ""
 
 # TODO 插件脚本列表的方法
