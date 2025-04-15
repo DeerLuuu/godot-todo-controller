@@ -12,14 +12,13 @@ const NOT_STAR : String = "🩶"
 @onready var tree_v_box: VBoxContainer = %TreeVBox
 @onready var ex_control: Control = %EX_Control
 
-var star_list : Array = ["res://addons/todo_controller/todo_controller.gd"]
+var star_list : Array
 var left_list_x : float
 var script_list : Array
-var keywords
+var keywords : String
 var is_selected_mode : bool = false
 var is_star_mode : bool = false
 var is_selected_mode_index : int
-
 var current_tree : Tree
 
 func _ready() -> void:
@@ -35,18 +34,23 @@ func _ready() -> void:
 	keywords = settings.get_setting("text_editor/theme/highlighting/comment_markers/warning_list")
 
 	reset_todo_controller()
+	script_tree_can_selected()
 
+# TODO 脚本树是否允许点击
+func script_tree_can_selected() -> void:
+	if star_list.is_empty():
+		star_script_tree.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	else :
+		star_script_tree.mouse_filter = Control.MOUSE_FILTER_STOP
 
 # TODO 生成脚本列表中的树的方法
 func reset_todo_controller() -> void:
 	script_list = get_scripte_list("res://")
 
-	update_script_tree()
 	update_star_script_tree()
+	update_script_tree()
 
-	var root : TreeItem = script_tree.get_root()
-	script_tree.set_selected(root, 0)
-
+# 更新脚本树
 func update_script_tree() -> void:
 	script_tree.clear()
 	var root : TreeItem = script_tree.create_item()
@@ -71,6 +75,7 @@ func update_script_tree() -> void:
 
 		scrpit_list_h_split.split_offset = left_list_x
 
+# 更新收藏脚本树
 func update_star_script_tree() -> void:
 	star_script_tree.clear()
 	var star_root = star_script_tree.create_item()
@@ -117,7 +122,8 @@ func _on_star_script_tree_item_mouse_selected(_mouse_position: Vector2, mouse_bu
 		current_tree = star_script_tree
 		is_star_mode = true
 		annotation_code_tree.clear()
-		var file = FileAccess.open(star_list[star_script_tree.get_selected().get_index()], FileAccess.READ)
+		print(script_list)
+		var file = FileAccess.open(star_list[current_tree.get_selected().get_index()], FileAccess.READ)
 		var script_text : String = file.get_as_text()
 		var script_rows : Array = script_text.split("\n")
 
@@ -185,7 +191,7 @@ func _on_script_tree_item_mouse_selected(mouse_position: Vector2, mouse_button_i
 		current_tree = script_tree
 		is_star_mode = false
 		annotation_code_tree.clear()
-		var file = FileAccess.open(script_list[script_tree.get_selected().get_index()], FileAccess.READ)
+		var file = FileAccess.open(script_list[current_tree.get_selected().get_index()], FileAccess.READ)
 		var script_text : String = file.get_as_text()
 		var script_rows : Array = script_text.split("\n")
 

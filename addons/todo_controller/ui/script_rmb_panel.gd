@@ -26,6 +26,9 @@ func _on_star_button_pressed() -> void:
 	current_panel.update_star_script_tree()
 	current_panel.update_script_tree()
 	current_panel.update_item_collapsed()
+
+	# 更新脚本列表树中的聚焦模式
+	current_panel.script_tree_can_selected()
 	queue_free()
 
 # TODO 点击取消收藏按钮的方法
@@ -34,6 +37,9 @@ func _on_un_star_button_pressed() -> void:
 	current_panel.update_star_script_tree()
 	current_panel.update_script_tree()
 	current_panel.update_item_collapsed()
+
+	# 更新脚本列表树中的聚焦模式
+	current_panel.script_tree_can_selected()
 	queue_free()
 
 # 点击打开脚本按钮的方法
