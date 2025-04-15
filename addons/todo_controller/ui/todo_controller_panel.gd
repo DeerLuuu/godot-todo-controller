@@ -12,9 +12,14 @@ const NOT_STAR : String = "🩶"
 @onready var tree_v_box: VBoxContainer = %TreeVBox
 @onready var ex_control: Control = %EX_Control
 
-var star_list : Array
-var left_list_x : float
+var star_list : Array:
+	set(v):
+		star_list = v
+		var config : Config = Config.new()
+		config.star_list = star_list
+		ResourceSaver.save(config, "res://addons/todo_controller/config/config.tres")
 var script_list : Array
+var left_list_x : float
 var keywords : String
 var is_selected_mode : bool = false
 var is_star_mode : bool = false
@@ -46,6 +51,13 @@ func script_tree_can_selected() -> void:
 # TODO 生成脚本列表中的树的方法
 func reset_todo_controller() -> void:
 	script_list = get_scripte_list("res://")
+
+	var config : Config = ResourceLoader.load("res://addons/todo_controller/config/config.tres")
+	for i in config.star_list:
+		if i in script_list:
+			continue
+		config.star_list.erase(i)
+	star_list = config.star_list
 
 	update_star_script_tree()
 	update_script_tree()
@@ -97,11 +109,11 @@ func _on_script_tree_item_activated(tree : Tree) -> void:
 	if tree == script_tree:
 		if not script_tree.get_selected().get_text(0) == "所有脚本":
 			script_path = script_list[script_tree.get_selected().get_index()]
+			EditorInterface.edit_resource(load(script_path))
 	elif tree == star_script_tree:
 		if not star_script_tree.get_selected().get_text(0) == "收藏脚本":
 			script_path = star_list[star_script_tree.get_selected().get_index()]
-
-	EditorInterface.edit_resource(load(script_path))
+			EditorInterface.edit_resource(load(script_path))
 
 # TODO 树被折叠时的方法
 func _on_item_collapsed(_item : TreeItem) -> void:
@@ -203,6 +215,7 @@ func _on_script_tree_item_mouse_selected(mouse_position: Vector2, mouse_button_i
 
 			for i in script_list.size():
 				var _item : TreeItem = annotation_code_tree.create_item()
+				var item_has_annotation : bool = false
 				_item.set_text(0, script_list[i].split("/")[-1])
 				_item.set_custom_color(0, Color.AQUAMARINE)
 
@@ -221,6 +234,11 @@ func _on_script_tree_item_mouse_selected(mouse_position: Vector2, mouse_button_i
 						var item = _item.create_child()
 						item.set_text(0, "(%04d) - " % (row + 1) + script_row)
 						item.set_custom_color(0, Color.YELLOW)
+						item_has_annotation = true
+
+				if not item_has_annotation:
+					root_item.remove_child(_item)
+					_item.free()
 			return
 
 		is_selected_mode = true

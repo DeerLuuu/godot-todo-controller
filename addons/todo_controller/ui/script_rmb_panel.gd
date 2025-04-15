@@ -22,7 +22,9 @@ func set_script_rmb(_current_script : String = "", _current_panel : TodoControll
 
 # TODO 点击收藏按钮的方法
 func _on_star_button_pressed() -> void:
-	current_panel.star_list.append(current_script)
+	var _star_list : Array = current_panel.star_list
+	_star_list.append(current_script)
+	current_panel.star_list = _star_list
 	current_panel.update_star_script_tree()
 	current_panel.update_script_tree()
 	current_panel.update_item_collapsed()
@@ -33,7 +35,9 @@ func _on_star_button_pressed() -> void:
 
 # TODO 点击取消收藏按钮的方法
 func _on_un_star_button_pressed() -> void:
-	current_panel.star_list.erase(current_script)
+	var _star_list : Array = current_panel.star_list
+	_star_list.erase(current_script)
+	current_panel.star_list = _star_list
 	current_panel.update_star_script_tree()
 	current_panel.update_script_tree()
 	current_panel.update_item_collapsed()
