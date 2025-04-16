@@ -160,7 +160,7 @@ unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_styles/normal = SubResource("StyleBoxFlat_a6d4f")
-placeholder_text = "请输入要搜索的备注/脚本/"
+placeholder_text = "请输入要搜索的内容"
 clear_button_enabled = true
 
 [node name="CaseSensitiveButton" type="CheckButton" parent="AnnotationPanelContainer/MarginContainer/HSplitContainer/ScrpitListHSplit/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer"]
