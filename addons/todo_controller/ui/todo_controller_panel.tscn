@@ -1,6 +1,7 @@
-[gd_scene load_steps=7 format=3 uid="uid://c3ee00a8amm7c"]
+[gd_scene load_steps=8 format=3 uid="uid://c3ee00a8amm7c"]
 
 [ext_resource type="Script" uid="uid://l2fxjwa55mwe" path="res://addons/todo_controller/ui/todo_controller_panel.gd" id="1_17i0j"]
+[ext_resource type="Texture2D" uid="uid://bt4621enrdft2" path="res://addons/todo_controller/icon/icon.png" id="2_a6d4f"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hmdan"]
 bg_color = Color(0.145098, 0.145098, 0.145098, 1)
@@ -87,8 +88,23 @@ layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
-[node name="TitleLabel" type="Label" parent="AnnotationPanelContainer/MarginContainer/HSplitContainer/ScrpitListHSplit/ScriptPanel/MarginContainer/VBoxContainer"]
+[node name="HBoxContainer" type="HBoxContainer" parent="AnnotationPanelContainer/MarginContainer/HSplitContainer/ScrpitListHSplit/ScriptPanel/MarginContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 40)
 layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+
+[node name="IconTexture" type="TextureRect" parent="AnnotationPanelContainer/MarginContainer/HSplitContainer/ScrpitListHSplit/ScriptPanel/MarginContainer/VBoxContainer/HBoxContainer"]
+custom_minimum_size = Vector2(36, 36)
+layout_mode = 2
+size_flags_vertical = 8
+texture = ExtResource("2_a6d4f")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="TitleLabel" type="Label" parent="AnnotationPanelContainer/MarginContainer/HSplitContainer/ScrpitListHSplit/ScriptPanel/MarginContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
 text = "脚本列表"
 label_settings = SubResource("LabelSettings_hmdan")
 horizontal_alignment = 1
@@ -157,6 +173,7 @@ layout_mode = 2
 
 [node name="ScratchEdit" type="LineEdit" parent="AnnotationPanelContainer/MarginContainer/HSplitContainer/ScrpitListHSplit/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer"]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 36)
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_styles/normal = SubResource("StyleBoxFlat_a6d4f")

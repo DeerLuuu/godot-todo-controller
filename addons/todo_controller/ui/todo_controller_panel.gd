@@ -45,6 +45,8 @@ func _ready() -> void:
 	scratch_edit.text_changed.connect(_on_scratch_edit_text_changed)
 	case_sensitive_button.toggled.connect(_on_case_sensitive_button_toggled)
 
+	set_tab_title(0, "TODO管理器")
+
 	var settings = EditorInterface.get_editor_settings()
 	keywords = settings.get_setting("text_editor/theme/highlighting/comment_markers/warning_list").split(",")
 	keywords_notice = settings.get_setting("text_editor/theme/highlighting/comment_markers/notice_list").split(",")
