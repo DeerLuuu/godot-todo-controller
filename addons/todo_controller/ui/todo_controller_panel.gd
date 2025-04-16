@@ -50,7 +50,6 @@ func _ready() -> void:
 	keywords_notice = settings.get_setting("text_editor/theme/highlighting/comment_markers/notice_list").split(",")
 	keywords_critical = settings.get_setting("text_editor/theme/highlighting/comment_markers/critical_list").split(",")
 
-
 	reset_todo_controller()
 	script_tree_can_selected()
 
@@ -65,12 +64,14 @@ func script_tree_can_selected() -> void:
 func reset_todo_controller() -> void:
 	script_list = get_scripte_list("res://")
 
-	var config : Config = ResourceLoader.load("res://addons/todo_controller/config/config.tres")
-	for i in config.star_list:
-		if i in script_list:
-			continue
-		config.star_list.erase(i)
-	star_list = config.star_list
+	if FileAccess.file_exists("res://addons/todo_controller/config/config.tres"):
+		var config : Config = ResourceLoader.load("res://addons/todo_controller/config/config.tres")
+		if config:
+			for i in config.star_list:
+				if i in script_list:
+					continue
+				config.star_list.erase(i)
+			star_list = config.star_list
 
 	update_star_script_tree()
 	update_script_tree()
