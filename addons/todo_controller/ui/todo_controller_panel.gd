@@ -393,6 +393,7 @@ func _on_scratch_edit_text_changed(new_text: String) -> void:
 			if annotation_code_tree.get_root().get_text(0).get_extension() == "gd":
 				if is_case_sensitive:
 					if s.get_text(0).contains(new_text): continue
+					continue
 				if s.get_text(0).to_lower().contains(new_text.to_lower()): continue
 				s.remove_child(annotation_code_tree.get_root())
 				s.free()
@@ -403,6 +404,7 @@ func _on_scratch_edit_text_changed(new_text: String) -> void:
 					if i.get_text(0).contains(new_text):
 						is_has_annotion = true
 						continue
+					continue
 				if i.get_text(0).to_lower().contains(new_text.to_lower()):
 					is_has_annotion = true
 					continue
