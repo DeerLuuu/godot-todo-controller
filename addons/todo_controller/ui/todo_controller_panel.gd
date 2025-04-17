@@ -173,9 +173,10 @@ func _on_star_script_tree_item_mouse_selected(_mouse_position: Vector2, mouse_bu
 
 				for row in script_rows.size():
 					var script_row : String = script_rows[row]
-					if not script_row.begins_with("# "): continue
+					script_row = script_row.dedent()
+					if not script_row.begins_with("#"): continue
 
-					script_row = script_row.erase(0, 2)
+					script_row = script_row.erase(0, script_row.count("#") + 1)
 
 					if get_annotation_key(script_row) in keywords:
 						var item : TreeItem = _item.create_child()
@@ -203,9 +204,10 @@ func _on_star_script_tree_item_mouse_selected(_mouse_position: Vector2, mouse_bu
 
 		for row in script_rows.size():
 			var script_row : String = script_rows[row]
-			if not script_row.begins_with("# "): continue
+			script_row = script_row.dedent()
+			if not script_row.begins_with("#"): continue
 
-			script_row = script_row.erase(0, 2)
+			script_row = script_row.erase(0, script_row.count("#") + 1)
 
 			if get_annotation_key(script_row) in keywords:
 				var item : TreeItem = root_item.create_child()
@@ -257,9 +259,10 @@ func _on_script_tree_item_mouse_selected(mouse_position: Vector2, mouse_button_i
 
 				for row in script_rows.size():
 					var script_row : String = script_rows[row]
-					if not script_row.begins_with("# "): continue
+					script_row = script_row.dedent()
+					if not script_row.begins_with("#"): continue
 
-					script_row = script_row.erase(0, 2)
+					script_row = script_row.erase(0, script_row.count("#") + 1)
 
 					if get_annotation_key(script_row) in keywords:
 						var item = _item.create_child()
@@ -288,9 +291,10 @@ func _on_script_tree_item_mouse_selected(mouse_position: Vector2, mouse_button_i
 
 		for row in script_rows.size():
 			var script_row : String = script_rows[row]
-			if not script_row.begins_with("# "): continue
+			script_row = script_row.dedent()
+			if not script_row.begins_with("#"): continue
 
-			script_row = script_row.erase(0, 2)
+			script_row = script_row.erase(0, script_row.count("#") + 1)
 
 			if get_annotation_key(script_row) in keywords:
 				var item : TreeItem = root_item.create_child()

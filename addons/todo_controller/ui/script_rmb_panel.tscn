@@ -59,6 +59,8 @@ custom_minimum_size = Vector2(150, 0)
 layout_mode = 2
 text = "取消"
 
+[connection signal="mouse_entered" from="." to="." method="_on_mouse_entered"]
+[connection signal="mouse_exited" from="." to="." method="_on_mouse_exited"]
 [connection signal="pressed" from="MarginContainer/VBoxContainer/StarButton" to="." method="_on_star_button_pressed"]
 [connection signal="pressed" from="MarginContainer/VBoxContainer/UnStarButton" to="." method="_on_un_star_button_pressed"]
 [connection signal="pressed" from="MarginContainer/VBoxContainer/OpenScriptButton" to="." method="_on_open_script_button_pressed"]

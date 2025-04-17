@@ -17,9 +17,13 @@ func _init() -> void:
 func _enter_tree() -> void:
 	todo_controller_panel = TODO_CONTROLLER_PANEL.instantiate()
 	add_control_to_bottom_panel(todo_controller_panel, "Todo Controller")
+	## TEST 测试时用于方便观察输出
+	#add_control_to_dock(EditorPlugin.DOCK_SLOT_LEFT_BR, todo_controller_panel)
 
 func _exit_tree() -> void:
 	remove_control_from_bottom_panel(todo_controller_panel)
+	## TEST 测试时用于方便观察输出
+	#remove_control_from_docks(todo_controller_panel)
 
 # TODO 新建或者删除代码文件执行的方法
 func _on_script_classes_updated() -> void:

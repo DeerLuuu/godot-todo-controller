@@ -2,6 +2,8 @@
 # INFO 脚本列表右键菜单面板类
 class_name ScriptRMBPanel extends PanelContainer
 
+var open_script_button: Button
+var cancel_button: Button
 var star_button: Button
 var un_star_button: Button
 
@@ -9,15 +11,33 @@ var current_script : String
 
 var current_panel : TodoControllerPanel
 
+var mouse_in_rmb_panel : bool = false
+
+func _input(event: InputEvent) -> void:
+	if event is InputEventMouseButton:
+		if mouse_in_rmb_panel: return
+		if event.button_index == MOUSE_BUTTON_LEFT and event.is_pressed():
+			queue_free()
+
 # TODO 脚本列表右键菜单初始化
 func set_script_rmb(_current_script : String = "", _current_panel : TodoControllerPanel = null) -> void:
 	current_script = _current_script
 	current_panel = _current_panel
 
 	global_position = get_global_mouse_position()
+	if get_viewport().get_visible_rect().size.y < get_global_mouse_position().y + 200:
+		global_position = get_global_mouse_position() + Vector2.UP * 200
 
 	star_button = %StarButton
 	un_star_button = %UnStarButton
+	open_script_button = %OpenScriptButton
+	cancel_button = %CancelButton
+
+	open_script_button.mouse_entered.connect(_on_button_mouse_entered)
+	cancel_button.mouse_entered.connect(_on_button_mouse_entered)
+	star_button.mouse_entered.connect(_on_button_mouse_entered)
+	un_star_button.mouse_entered.connect(_on_button_mouse_entered)
+
 	star_button.disabled = current_panel.star_list.has(current_script)
 	un_star_button.disabled = not star_button.disabled
 
@@ -55,3 +75,12 @@ func _on_open_script_button_pressed() -> void:
 # 点击取消按钮的方法
 func _on_cancel_button_pressed() -> void:
 	queue_free()
+
+func _on_button_mouse_entered() -> void:
+	mouse_in_rmb_panel = true
+
+func _on_mouse_entered() -> void:
+	mouse_in_rmb_panel = true
+
+func _on_mouse_exited() -> void:
+	mouse_in_rmb_panel = false
