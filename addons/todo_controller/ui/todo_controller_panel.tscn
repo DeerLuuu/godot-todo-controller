@@ -47,12 +47,15 @@ corner_radius_bottom_left = 16
 [node name="TodoControllerPanel" type="TabContainer"]
 offset_right = 800.0
 offset_bottom = 300.0
-current_tab = 0
+current_tab = 1
 script = ExtResource("1_17i0j")
 
 [node name="AnnotationPanelContainer" type="PanelContainer" parent="."]
+unique_name_in_owner = true
+visible = false
 layout_mode = 2
 metadata/_tab_index = 0
+metadata/_tab_name = "TODO管理器"
 
 [node name="MarginContainer" type="MarginContainer" parent="AnnotationPanelContainer"]
 layout_mode = 2
@@ -224,6 +227,162 @@ vertical_alignment = 1
 
 [node name="EX_Control" type="Control" parent="AnnotationPanelContainer"]
 unique_name_in_owner = true
+visible = false
 layout_mode = 2
 size_flags_horizontal = 0
 size_flags_vertical = 0
+
+[node name="SettingPanelContainer" type="PanelContainer" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+metadata/_tab_index = 1
+
+[node name="MarginContainer" type="MarginContainer" parent="SettingPanelContainer"]
+layout_mode = 2
+theme_override_constants/margin_left = 4
+theme_override_constants/margin_top = -2
+theme_override_constants/margin_right = 4
+theme_override_constants/margin_bottom = -2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="SettingPanelContainer/MarginContainer"]
+layout_mode = 2
+
+[node name="PanelContainer" type="PanelContainer" parent="SettingPanelContainer/MarginContainer/HBoxContainer"]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_hmdan")
+
+[node name="MarginContainer" type="MarginContainer" parent="SettingPanelContainer/MarginContainer/HBoxContainer/PanelContainer"]
+layout_mode = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 8
+
+[node name="ScrollContainer" type="ScrollContainer" parent="SettingPanelContainer/MarginContainer/HBoxContainer/PanelContainer/MarginContainer"]
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="SettingPanelContainer/MarginContainer/HBoxContainer/PanelContainer/MarginContainer/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Button" type="Button" parent="SettingPanelContainer/MarginContainer/HBoxContainer/PanelContainer/MarginContainer/ScrollContainer/VBoxContainer"]
+custom_minimum_size = Vector2(150, 0)
+layout_mode = 2
+text = "界面显示设置"
+alignment = 0
+
+[node name="Button2" type="Button" parent="SettingPanelContainer/MarginContainer/HBoxContainer/PanelContainer/MarginContainer/ScrollContainer/VBoxContainer"]
+custom_minimum_size = Vector2(150, 0)
+layout_mode = 2
+text = "搜索与过滤"
+alignment = 0
+
+[node name="Button3" type="Button" parent="SettingPanelContainer/MarginContainer/HBoxContainer/PanelContainer/MarginContainer/ScrollContainer/VBoxContainer"]
+custom_minimum_size = Vector2(150, 0)
+layout_mode = 2
+text = "文件黑名单"
+alignment = 0
+
+[node name="Button4" type="Button" parent="SettingPanelContainer/MarginContainer/HBoxContainer/PanelContainer/MarginContainer/ScrollContainer/VBoxContainer"]
+custom_minimum_size = Vector2(150, 0)
+layout_mode = 2
+text = "恢复默认设置"
+alignment = 0
+
+[node name="Button7" type="Button" parent="SettingPanelContainer/MarginContainer/HBoxContainer/PanelContainer/MarginContainer/ScrollContainer/VBoxContainer"]
+custom_minimum_size = Vector2(150, 0)
+layout_mode = 2
+text = "插件主题设置"
+alignment = 0
+
+[node name="Button5" type="Button" parent="SettingPanelContainer/MarginContainer/HBoxContainer/PanelContainer/MarginContainer/ScrollContainer/VBoxContainer"]
+custom_minimum_size = Vector2(150, 0)
+layout_mode = 2
+text = "更新日志"
+alignment = 0
+
+[node name="Button6" type="Button" parent="SettingPanelContainer/MarginContainer/HBoxContainer/PanelContainer/MarginContainer/ScrollContainer/VBoxContainer"]
+custom_minimum_size = Vector2(150, 0)
+layout_mode = 2
+text = "错误提交"
+alignment = 0
+
+[node name="PanelContainer2" type="PanelContainer" parent="SettingPanelContainer/MarginContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_hmdan")
+
+[node name="MarginContainer" type="MarginContainer" parent="SettingPanelContainer/MarginContainer/HBoxContainer/PanelContainer2"]
+layout_mode = 2
+
+[node name="PanelContainer3" type="PanelContainer" parent="SettingPanelContainer/MarginContainer/HBoxContainer"]
+custom_minimum_size = Vector2(250, 0)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_hmdan")
+
+[node name="MarginContainer" type="MarginContainer" parent="SettingPanelContainer/MarginContainer/HBoxContainer/PanelContainer3"]
+layout_mode = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 8
+
+[node name="ScrollContainer" type="ScrollContainer" parent="SettingPanelContainer/MarginContainer/HBoxContainer/PanelContainer3/MarginContainer"]
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="SettingPanelContainer/MarginContainer/HBoxContainer/PanelContainer3/MarginContainer/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="IconTexture" type="TextureRect" parent="SettingPanelContainer/MarginContainer/HBoxContainer/PanelContainer3/MarginContainer/ScrollContainer/VBoxContainer"]
+custom_minimum_size = Vector2(128, 128)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+texture = ExtResource("2_a6d4f")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Label" type="Label" parent="SettingPanelContainer/MarginContainer/HBoxContainer/PanelContainer3/MarginContainer/ScrollContainer/VBoxContainer"]
+layout_mode = 2
+text = "插件信息"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Label2" type="Label" parent="SettingPanelContainer/MarginContainer/HBoxContainer/PanelContainer3/MarginContainer/ScrollContainer/VBoxContainer"]
+layout_mode = 2
+text = "开发者：DeerLuuu"
+vertical_alignment = 1
+
+[node name="Label3" type="Label" parent="SettingPanelContainer/MarginContainer/HBoxContainer/PanelContainer3/MarginContainer/ScrollContainer/VBoxContainer"]
+layout_mode = 2
+text = "图标：猫"
+vertical_alignment = 1
+
+[node name="Button6" type="Button" parent="SettingPanelContainer/MarginContainer/HBoxContainer/PanelContainer3/MarginContainer/ScrollContainer/VBoxContainer"]
+custom_minimum_size = Vector2(150, 0)
+layout_mode = 2
+text = "赞助我们"
+alignment = 0
+
+[node name="Label5" type="Label" parent="SettingPanelContainer/MarginContainer/HBoxContainer/PanelContainer3/MarginContainer/ScrollContainer/VBoxContainer"]
+layout_mode = 2
+text = "版本：v1.0.5"
+vertical_alignment = 1
+
+[node name="Label4" type="Label" parent="SettingPanelContainer/MarginContainer/HBoxContainer/PanelContainer3/MarginContainer/ScrollContainer/VBoxContainer"]
+custom_minimum_size = Vector2(180, 0)
+layout_mode = 2
+text = "插件简介：
+1、实现了所有脚本的读取
+2、实现了脚本分组（是否收藏脚本）
+3、实现了脚本中的注释扫描（所有包含关键字的注释会被添加到注释界面进行显示，显示内容包含行数、关键字、具体注释内容）
+4、实现了右键脚本树中的脚本时的右键菜单，包含收藏、取消收藏、打开脚本、取消
+5、实现了双击脚本树中的脚本来打开脚本
+6、单击脚本树中的脚本将会把注释界面中的注释进行过滤，仅显示当前显示的脚本的注释
+7、单击注释界面中的脚本名可以打开对应脚本
+8、单击注释界面中的注释可以打开对应脚本并跳转到对应行数
+9、注释搜索功能（允许全字匹配搜索和不区分大小写搜索）"
+vertical_alignment = 1
+autowrap_mode = 3
