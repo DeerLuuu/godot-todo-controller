@@ -3,8 +3,8 @@
 class_name TodoControllerPanel extends TabContainer
 
 const SCRIPT_RMB_PANEL = preload("res://addons/todo_controller/ui/script_rmb_panel.tscn")
-const STAR : String = "🩷"
-const NOT_STAR : String = "🩶"
+const STAR : String = "♥"
+const NOT_STAR : String = "♡"
 
 @onready var script_tree: Tree = %ScriptTree
 @onready var star_script_tree: Tree = %StarScriptTree
@@ -33,6 +33,9 @@ var current_tree : Tree
 var is_case_sensitive : bool = false
 
 func _ready() -> void:
+	if not DirAccess.dir_exists_absolute("res://addons/todo_controller/config/"):
+		DirAccess.make_dir_absolute("res://addons/todo_controller/config/")
+
 	script_tree.item_activated.connect(_on_script_tree_item_activated.bind(script_tree))
 	script_tree.item_collapsed.connect(_on_item_collapsed)
 	script_tree.item_mouse_selected.connect(_on_script_tree_item_mouse_selected)

@@ -225,9 +225,8 @@ label_settings = SubResource("LabelSettings_hmdan")
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="EX_Control" type="Control" parent="AnnotationPanelContainer"]
+[node name="EX_Control" type="Control" parent="AnnotationPanelContainer/MarginContainer"]
 unique_name_in_owner = true
-visible = false
 layout_mode = 2
 size_flags_horizontal = 0
 size_flags_vertical = 0
@@ -236,6 +235,7 @@ size_flags_vertical = 0
 unique_name_in_owner = true
 layout_mode = 2
 metadata/_tab_index = 1
+metadata/_tab_name = "设置"
 
 [node name="MarginContainer" type="MarginContainer" parent="SettingPanelContainer"]
 layout_mode = 2
