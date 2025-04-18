@@ -6,6 +6,10 @@ const SCRIPT_RMB_PANEL = preload("res://addons/todo_controller/ui/script_rmb_pan
 const STAR : String = "♥"
 const NOT_STAR : String = "♡"
 
+@onready var annotation_panel_container: PanelContainer = %AnnotationPanelContainer
+@onready var setting_panel_container: PanelContainer = %SettingPanelContainer
+
+# INFO Todo 管理器的变量
 @onready var script_tree: Tree = %ScriptTree
 @onready var star_script_tree: Tree = %StarScriptTree
 @onready var annotation_code_tree: Tree = %AnnotationCodeTree
@@ -20,9 +24,8 @@ const NOT_STAR : String = "♡"
 var star_list : Array:
 	set(v):
 		star_list = v
-		var config : Config = Config.new()
-		config.star_list = star_list
-		ResourceSaver.save(config, "res://addons/todo_controller/config/config.tres")
+		save_config()
+
 var script_list : Array
 
 var left_list_x : float
@@ -30,9 +33,26 @@ var keywords : Array
 var keywords_notice : Array
 var keywords_critical : Array
 var current_tree : Tree
+
+# INFO 设置界面的变量
+@onready var interface_display_button: Button = %InterfaceDisplayButton
+@onready var search_filtering_button: Button = %SearchFilteringButton
+@onready var blacklist_button: Button = %BlacklistButton
+@onready var recovery_button: Button = %RecoveryButton
+@onready var theme_button: Button = %ThemeButton
+@onready var update_button: Button = %UpdateButton
+@onready var issue_button: Button = %IssueButton
+
+@onready var line_number_show_setting_check: CheckButton = %LineNumberShowSettingCheck
+
+# INFO 设置选项
+# 大小写
 var is_case_sensitive : bool = false
+# 行号显示
+var line_number_show : bool = true
 
 func _ready() -> void:
+	# NOTE Todo 管理器的初始化内容
 	if not DirAccess.dir_exists_absolute("res://addons/todo_controller/config/"):
 		DirAccess.make_dir_absolute("res://addons/todo_controller/config/")
 
@@ -59,6 +79,21 @@ func _ready() -> void:
 	reset_todo_controller()
 	script_tree_can_selected()
 
+	# NOTE 设置的初始化内容
+	interface_display_button.pressed.connect(_on_interface_display_button_pressed)
+	search_filtering_button.pressed.connect(_on_search_filtering_button_pressed)
+	blacklist_button.pressed.connect(_on_blacklist_button_pressed)
+	recovery_button.pressed.connect(_on_recovery_button_pressed)
+	theme_button.pressed.connect(_on_theme_button_pressed)
+	update_button.pressed.connect(_on_update_button_pressed)
+	issue_button.pressed.connect(_on_issue_button_pressed)
+
+	line_number_show_setting_check.toggled.connect(_on_line_number_show_setting_check_toggled)
+
+	setting_panel_container.visibility_changed.connect(_on_setting_panel_container_visibility_changed)
+
+# NOTE 以下部分为 Todo 管理器 界面的代码
+
 # TODO 脚本树是否允许点击
 func script_tree_can_selected() -> void:
 	if star_list.is_empty():
@@ -71,13 +106,7 @@ func reset_todo_controller() -> void:
 	script_list = get_scripte_list("res://")
 
 	if FileAccess.file_exists("res://addons/todo_controller/config/config.tres"):
-		var config : Config = ResourceLoader.load("res://addons/todo_controller/config/config.tres")
-		if config:
-			for i in config.star_list:
-				if i in script_list:
-					continue
-				config.star_list.erase(i)
-			star_list = config.star_list
+		load_config()
 
 	update_star_script_tree()
 	update_script_tree()
@@ -180,17 +209,29 @@ func _on_star_script_tree_item_mouse_selected(_mouse_position: Vector2, mouse_bu
 
 					if get_annotation_key(script_row) in keywords:
 						var item : TreeItem = _item.create_child()
-						item.set_text(0, "(%04d) - " % (row + 1) + script_row)
+						if line_number_show:
+							item.set_text(0, "(%04d) - " % (row + 1) + script_row)
+						else :
+							item.set_text(0, "%04s" % script_row)
+
 						item.set_custom_color(0, Color.YELLOW)
 						item_has_annotation = true
 					if get_annotation_key(script_row) in keywords_critical:
 						var item = _item.create_child()
-						item.set_text(0, "(%04d) - " % (row + 1) + script_row)
+						if line_number_show:
+							item.set_text(0, "(%04d) - " % (row + 1) + script_row)
+						else :
+							item.set_text(0, "%04s" % script_row)
+
 						item.set_custom_color(0, Color.INDIAN_RED)
 						item_has_annotation = true
 					if get_annotation_key(script_row) in keywords_notice:
 						var item = _item.create_child()
-						item.set_text(0, "(%04d) - " % (row + 1) + script_row)
+						if line_number_show:
+							item.set_text(0, "(%04d) - " % (row + 1) + script_row)
+						else :
+							item.set_text(0, "%04s" % script_row)
+
 						item.set_custom_color(0, Color.PALE_GREEN)
 						item_has_annotation = true
 				if not item_has_annotation:
@@ -211,15 +252,27 @@ func _on_star_script_tree_item_mouse_selected(_mouse_position: Vector2, mouse_bu
 
 			if get_annotation_key(script_row) in keywords:
 				var item : TreeItem = root_item.create_child()
-				item.set_text(0, "(%04d) - " % (row + 1) + script_row)
+				if line_number_show:
+					item.set_text(0, "(%04d) - " % (row + 1) + script_row)
+				else :
+					item.set_text(0, "%04s" % script_row)
+
 				item.set_custom_color(0, Color.YELLOW)
 			if get_annotation_key(script_row) in keywords_critical:
 				var item = root_item.create_child()
-				item.set_text(0, "(%04d) - " % (row + 1) + script_row)
+				if line_number_show:
+					item.set_text(0, "(%04d) - " % (row + 1) + script_row)
+				else :
+					item.set_text(0, "%04s" % script_row)
+
 				item.set_custom_color(0, Color.INDIAN_RED)
 			if get_annotation_key(script_row) in keywords_notice:
 				var item = root_item.create_child()
-				item.set_text(0, "(%04d) - " % (row + 1) + script_row)
+				if line_number_show:
+					item.set_text(0, "(%04d) - " % (row + 1) + script_row)
+				else :
+					item.set_text(0, "%04s" % script_row)
+
 				item.set_custom_color(0, Color.PALE_GREEN)
 
 	# 鼠标右键输入
@@ -266,17 +319,26 @@ func _on_script_tree_item_mouse_selected(mouse_position: Vector2, mouse_button_i
 
 					if get_annotation_key(script_row) in keywords:
 						var item = _item.create_child()
-						item.set_text(0, "(%04d) - " % (row + 1) + script_row)
+						if line_number_show:
+							item.set_text(0, "(%04d) - " % (row + 1) + script_row)
+						else :
+							item.set_text(0, "%04s" % script_row)
 						item.set_custom_color(0, Color.YELLOW)
 						item_has_annotation = true
 					if get_annotation_key(script_row) in keywords_critical:
 						var item = _item.create_child()
-						item.set_text(0, "(%04d) - " % (row + 1) + script_row)
+						if line_number_show:
+							item.set_text(0, "(%04d) - " % (row + 1) + script_row)
+						else :
+							item.set_text(0, "%04s" % script_row)
 						item.set_custom_color(0, Color.INDIAN_RED)
 						item_has_annotation = true
 					if get_annotation_key(script_row) in keywords_notice:
 						var item = _item.create_child()
-						item.set_text(0, "(%04d) - " % (row + 1) + script_row)
+						if line_number_show:
+							item.set_text(0, "(%04d) - " % (row + 1) + script_row)
+						else :
+							item.set_text(0, "%04s" % script_row)
 						item.set_custom_color(0, Color.PALE_GREEN)
 						item_has_annotation = true
 
@@ -298,15 +360,24 @@ func _on_script_tree_item_mouse_selected(mouse_position: Vector2, mouse_button_i
 
 			if get_annotation_key(script_row) in keywords:
 				var item : TreeItem = root_item.create_child()
-				item.set_text(0, "(%04d) - " % (row + 1) + script_row)
+				if line_number_show:
+					item.set_text(0, "(%04d) - " % (row + 1) + script_row)
+				else :
+					item.set_text(0, "%04s" % script_row)
 				item.set_custom_color(0, Color.YELLOW)
 			if get_annotation_key(script_row) in keywords_critical:
 				var item = root_item.create_child()
-				item.set_text(0, "(%04d) - " % (row + 1) + script_row)
+				if line_number_show:
+					item.set_text(0, "(%04d) - " % (row + 1) + script_row)
+				else :
+					item.set_text(0, "%04s" % script_row)
 				item.set_custom_color(0, Color.INDIAN_RED)
 			if get_annotation_key(script_row) in keywords_notice:
 				var item = root_item.create_child()
-				item.set_text(0, "(%04d) - " % (row + 1) + script_row)
+				if line_number_show:
+					item.set_text(0, "(%04d) - " % (row + 1) + script_row)
+				else :
+					item.set_text(0, "%04s" % script_row)
 				item.set_custom_color(0, Color.PALE_GREEN)
 
 	# 鼠标右键输入
@@ -325,28 +396,20 @@ func _on_annotation_code_tree_item_selected() -> void:
 	if annotation_code_tree.get_selected().get_text(0) == "所有脚本": return
 	if annotation_code_tree.get_selected().get_text(0) == "收藏脚本": return
 	if annotation_code_tree.get_selected().get_text(0).get_extension() == "gd":
-		var script_path : String
-
-		for i : String in script_list:
-			if not i.contains(annotation_code_tree.get_selected().get_text(0)): continue
-			script_path = i
-			break
+		var script_path : String = get_annotion_script(annotation_code_tree.get_selected().get_text(0))
 
 		EditorInterface.edit_resource(load(script_path))
 		return
 
-	var key : String = annotation_code_tree.get_selected().get_text(0).split(" ")[2]
-	key = get_annotation_key(key)
+	var key : String
+	key = get_annotation_key(annotation_code_tree.get_selected().get_text(0))
 	if key != "":
-		var line : int = int(annotation_code_tree.get_selected().get_text(0).split(" ")[0].erase(0).left(5))
-		var script_path : String
-
-		for i : String in script_list:
-			if not i.contains(annotation_code_tree.get_selected().get_parent().get_text(0)): continue
-			script_path = i
-
-		EditorInterface.edit_resource(load(script_path))
-		EditorInterface.get_script_editor().goto_line(line - 1)
+		var annotation_arr : Array = get_annotion_line(
+			annotation_code_tree.get_selected().get_parent().get_text(0),
+			annotation_code_tree.get_selected().get_text(0)
+			)
+		EditorInterface.edit_resource(load(annotation_arr[0]))
+		EditorInterface.get_script_editor().goto_line(annotation_arr[1] - 1)
 
 # TODO 获取某行注释的注释关键字的方法
 func get_annotation_key(annotation : String) -> String:
@@ -383,6 +446,34 @@ func get_scripte_list(root_path : String) -> Array:
 
 			file_name = dir.get_next()
 	return scripts
+
+# TODO 获取文件
+func get_annotion_script(file_name : String) -> String:
+	var file_path : String
+	for i : String in script_list:
+		if i.contains(file_name):
+			file_path = i
+			break
+
+	return file_path
+
+# TODO 获取行数
+func get_annotion_line(file_name : String, annotation_script : String) -> Array:
+	var file_path : String = get_annotion_script(file_name)
+	var script_line : int = 1
+	var file = FileAccess.open(file_path, FileAccess.READ)
+	var script_text : String = file.get_as_text()
+	var script_rows : Array = script_text.split("\n")
+
+	if annotation_script.contains("-"):
+		annotation_script = annotation_script.erase(0, 9)
+
+	for i :String in script_rows:
+		if i.contains(annotation_script):
+			break
+		script_line += 1
+
+	return [file_path, script_line]
 
 # TODO 判断是否是不需要的文件夹
 func _is_special_dir(name: String) -> bool:
@@ -425,3 +516,61 @@ func _on_scratch_edit_text_changed(new_text: String) -> void:
 			if not is_has_annotion:
 				annotation_code_tree.get_root().remove_child(s)
 				s.free()
+
+# NOTE 以下部分为 设置 界面的代码
+
+# TODO 界面显示设置按钮
+func _on_interface_display_button_pressed() -> void:
+	pass # Replace with function body.
+
+# TODO 搜索与过滤按钮
+func _on_search_filtering_button_pressed() -> void:
+	pass # Replace with function body.
+
+# TODO 文件黑名单按钮
+func _on_blacklist_button_pressed() -> void:
+	pass # Replace with function body.
+
+# TODO 恢复默认设置按钮
+func _on_recovery_button_pressed() -> void:
+	pass # Replace with function body.
+
+# TODO 插件主题设置按钮
+func _on_theme_button_pressed() -> void:
+	pass # Replace with function body.
+
+# TODO 更新日志按钮
+func _on_update_button_pressed() -> void:
+	pass # Replace with function body.
+
+# TODO 错误提交按钮
+func _on_issue_button_pressed() -> void:
+	pass # Replace with function body.
+
+# TODO 行号显示按钮切换
+func _on_line_number_show_setting_check_toggled(toggled_on: bool) -> void:
+	line_number_show = toggled_on
+	save_config()
+
+# TODO 读取存档
+func load_config() -> void:
+	var config : Config = ResourceLoader.load("res://addons/todo_controller/config/config.tres")
+	if config:
+		for i in config.star_list:
+			if i in script_list:
+				continue
+			config.star_list.erase(i)
+		star_list = config.star_list
+
+		line_number_show = config.line_number_show
+
+# TODO 保存存档
+func save_config() -> void:
+	var config : Config = Config.new()
+	config.star_list = star_list
+	config.line_number_show = line_number_show
+	ResourceSaver.save(config, "res://addons/todo_controller/config/config.tres")
+
+# TODO 刷新设置
+func _on_setting_panel_container_visibility_changed() -> void:
+	line_number_show_setting_check.button_pressed = line_number_show
