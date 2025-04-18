@@ -44,12 +44,15 @@ var current_tree : Tree
 @onready var issue_button: Button = %IssueButton
 
 @onready var line_number_show_setting_check: CheckButton = %LineNumberShowSettingCheck
+@onready var complete_path_check: CheckButton = %CompletePathCheck
 
 # INFO 设置选项
 # 大小写
 var is_case_sensitive : bool = false
 # 行号显示
 var line_number_show : bool = true
+# 完整路径
+var complete_path_show : bool = false
 
 func _ready() -> void:
 	# NOTE Todo 管理器的初始化内容
@@ -89,6 +92,7 @@ func _ready() -> void:
 	issue_button.pressed.connect(_on_issue_button_pressed)
 
 	line_number_show_setting_check.toggled.connect(_on_line_number_show_setting_check_toggled)
+	complete_path_check.toggled.connect(_on_complete_path_check_toggled)
 
 	setting_panel_container.visibility_changed.connect(_on_setting_panel_container_visibility_changed)
 
@@ -123,6 +127,7 @@ func update_script_tree() -> void:
 		var script_tree_item : Array = d.split("/")
 		var script_name : String = script_tree_item.pop_back()
 		var tree_item : TreeItem = script_tree.create_item(root)
+
 		tree_item.set_custom_font_size(0, 16)
 		tree_item.set_text(0, "%3s" % NOT_STAR + script_name)
 		if d in star_list:
@@ -148,6 +153,7 @@ func update_star_script_tree() -> void:
 		var script_tree_item : Array = d.split("/")
 		var script_name : String = script_tree_item.pop_back()
 		var tree_item : TreeItem = star_script_tree.create_item(star_root)
+
 		tree_item.set_custom_font_size(0, 16)
 		tree_item.set_text(0, "%3s" % STAR + script_name)
 		tree_item.set_custom_color(0, Color.AQUAMARINE)
@@ -187,14 +193,19 @@ func _on_star_script_tree_item_mouse_selected(_mouse_position: Vector2, mouse_bu
 		var script_text : String = file.get_as_text()
 		var script_rows : Array = script_text.split("\n")
 
-		if star_script_tree.get_selected().get_text(0) == "收藏脚本":
+		if current_tree.get_selected().get_text(0) == "收藏脚本":
 			var root_item : TreeItem = annotation_code_tree.create_item()
 			root_item.set_text(0, "收藏脚本")
 			root_item.set_custom_color(0, Color.AQUA)
 			for i in star_list.size():
 				var _item : TreeItem = annotation_code_tree.create_item()
 				var item_has_annotation : bool = false
-				_item.set_text(0, star_list[i].split("/")[-1])
+				var script_path : String = star_list[i].split("/")[-1]
+
+				if complete_path_show:
+					script_path = star_list[i]
+
+				_item.set_text(0, script_path)
 				_item.set_custom_color(0, Color.AQUAMARINE)
 
 				script_text = file.open(star_list[i], FileAccess.READ).get_as_text()
@@ -240,7 +251,12 @@ func _on_star_script_tree_item_mouse_selected(_mouse_position: Vector2, mouse_bu
 			return
 
 		var root_item : TreeItem = annotation_code_tree.create_item()
-		root_item.set_text(0, star_list[star_script_tree.get_selected().get_index()].split("/")[-1])
+		var script_path : String = star_list[current_tree.get_selected().get_index()].split("/")[-1]
+
+		if complete_path_show:
+			script_path = star_list[current_tree.get_selected().get_index()]
+
+		root_item.set_text(0, script_path)
 		root_item.set_custom_color(0, Color.AQUAMARINE)
 
 		for row in script_rows.size():
@@ -278,7 +294,7 @@ func _on_star_script_tree_item_mouse_selected(_mouse_position: Vector2, mouse_bu
 	# 鼠标右键输入
 	if mouse_button_index == MOUSE_BUTTON_RIGHT:
 		if star_script_tree.get_selected().get_text(0) == "收藏脚本": return
-		var selected_script : String = star_list[star_script_tree.get_selected().get_index()]
+		var selected_script : String = star_list[current_tree.get_selected().get_index()]
 
 		for i in ex_control.get_children():
 			i.queue_free()
@@ -304,7 +320,12 @@ func _on_script_tree_item_mouse_selected(mouse_position: Vector2, mouse_button_i
 			for i in script_list.size():
 				var _item : TreeItem = annotation_code_tree.create_item()
 				var item_has_annotation : bool = false
-				_item.set_text(0, script_list[i].split("/")[-1])
+				var script_path : String = script_list[i].split("/")[-1]
+
+				if complete_path_show:
+					script_path = script_list[i]
+
+				_item.set_text(0, script_path)
 				_item.set_custom_color(0, Color.AQUAMARINE)
 
 				script_text = file.open(script_list[i], FileAccess.READ).get_as_text()
@@ -312,12 +333,13 @@ func _on_script_tree_item_mouse_selected(mouse_position: Vector2, mouse_button_i
 
 				for row in script_rows.size():
 					var script_row : String = script_rows[row]
+					var key : String = get_annotation_key(script_row)
 					script_row = script_row.dedent()
 					if not script_row.begins_with("#"): continue
 
 					script_row = script_row.erase(0, script_row.count("#") + 1)
 
-					if get_annotation_key(script_row) in keywords:
+					if key in keywords:
 						var item = _item.create_child()
 						if line_number_show:
 							item.set_text(0, "(%04d) - " % (row + 1) + script_row)
@@ -325,7 +347,7 @@ func _on_script_tree_item_mouse_selected(mouse_position: Vector2, mouse_button_i
 							item.set_text(0, "%04s" % script_row)
 						item.set_custom_color(0, Color.YELLOW)
 						item_has_annotation = true
-					if get_annotation_key(script_row) in keywords_critical:
+					if key in keywords_critical:
 						var item = _item.create_child()
 						if line_number_show:
 							item.set_text(0, "(%04d) - " % (row + 1) + script_row)
@@ -333,7 +355,7 @@ func _on_script_tree_item_mouse_selected(mouse_position: Vector2, mouse_button_i
 							item.set_text(0, "%04s" % script_row)
 						item.set_custom_color(0, Color.INDIAN_RED)
 						item_has_annotation = true
-					if get_annotation_key(script_row) in keywords_notice:
+					if key in keywords_notice:
 						var item = _item.create_child()
 						if line_number_show:
 							item.set_text(0, "(%04d) - " % (row + 1) + script_row)
@@ -348,7 +370,12 @@ func _on_script_tree_item_mouse_selected(mouse_position: Vector2, mouse_button_i
 			return
 
 		var root_item : TreeItem = annotation_code_tree.create_item()
-		root_item.set_text(0, script_list[script_tree.get_selected().get_index()].split("/")[-1])
+		var script_path : String = script_list[current_tree.get_selected().get_index()].split("/")[-1]
+
+		if complete_path_show:
+			script_path = script_list[current_tree.get_selected().get_index()]
+
+		root_item.set_text(0, script_path)
 		root_item.set_custom_color(0, Color.AQUAMARINE)
 
 		for row in script_rows.size():
@@ -552,6 +579,11 @@ func _on_line_number_show_setting_check_toggled(toggled_on: bool) -> void:
 	line_number_show = toggled_on
 	save_config()
 
+# TODO 完整路径显示切换
+func _on_complete_path_check_toggled(toggled_on: bool) -> void:
+	complete_path_show = toggled_on
+	save_config()
+
 # TODO 读取存档
 func load_config() -> void:
 	var config : Config = ResourceLoader.load("res://addons/todo_controller/config/config.tres")
@@ -561,6 +593,7 @@ func load_config() -> void:
 				continue
 			config.star_list.erase(i)
 		star_list = config.star_list
+		complete_path_show = config.complete_path_show
 
 		line_number_show = config.line_number_show
 
@@ -569,6 +602,7 @@ func save_config() -> void:
 	var config : Config = Config.new()
 	config.star_list = star_list
 	config.line_number_show = line_number_show
+	config.complete_path_show = complete_path_show
 	ResourceSaver.save(config, "res://addons/todo_controller/config/config.tres")
 
 # TODO 刷新设置

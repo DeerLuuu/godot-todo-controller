@@ -247,7 +247,7 @@ theme_override_constants/margin_bottom = -2
 layout_mode = 2
 
 [node name="PanelContainer" type="PanelContainer" parent="SettingPanelContainer/MarginContainer/HBoxContainer"]
-custom_minimum_size = Vector2(200, 0)
+custom_minimum_size = Vector2(300, 0)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_hmdan")
 
@@ -352,28 +352,29 @@ size_flags_horizontal = 3
 [node name="LineNumberShowSettingCheck" type="CheckButton" parent="SettingPanelContainer/MarginContainer/HBoxContainer/ContextPanelContainer/MarginContainer/InterfaceDisplayVBox/LineNumberDisplaySetting/HBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
+button_pressed = true
 text = "开启/关闭"
 
-[node name="SearchFilteringSetting" type="MarginContainer" parent="SettingPanelContainer/MarginContainer/HBoxContainer/ContextPanelContainer/MarginContainer/InterfaceDisplayVBox"]
+[node name="CompletePathSetting" type="MarginContainer" parent="SettingPanelContainer/MarginContainer/HBoxContainer/ContextPanelContainer/MarginContainer/InterfaceDisplayVBox"]
 unique_name_in_owner = true
-visible = false
 layout_mode = 2
 theme_override_constants/margin_left = 8
 theme_override_constants/margin_right = 8
 
-[node name="HBoxContainer" type="HBoxContainer" parent="SettingPanelContainer/MarginContainer/HBoxContainer/ContextPanelContainer/MarginContainer/InterfaceDisplayVBox/SearchFilteringSetting"]
+[node name="HBoxContainer" type="HBoxContainer" parent="SettingPanelContainer/MarginContainer/HBoxContainer/ContextPanelContainer/MarginContainer/InterfaceDisplayVBox/CompletePathSetting"]
 layout_mode = 2
 
-[node name="Label" type="Label" parent="SettingPanelContainer/MarginContainer/HBoxContainer/ContextPanelContainer/MarginContainer/InterfaceDisplayVBox/SearchFilteringSetting/HBoxContainer"]
+[node name="Label" type="Label" parent="SettingPanelContainer/MarginContainer/HBoxContainer/ContextPanelContainer/MarginContainer/InterfaceDisplayVBox/CompletePathSetting/HBoxContainer"]
 layout_mode = 2
-text = "是否显示行号"
+text = "是否显示完整路径"
 vertical_alignment = 1
 
-[node name="Control" type="Control" parent="SettingPanelContainer/MarginContainer/HBoxContainer/ContextPanelContainer/MarginContainer/InterfaceDisplayVBox/SearchFilteringSetting/HBoxContainer"]
+[node name="Control" type="Control" parent="SettingPanelContainer/MarginContainer/HBoxContainer/ContextPanelContainer/MarginContainer/InterfaceDisplayVBox/CompletePathSetting/HBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="CheckButton" type="CheckButton" parent="SettingPanelContainer/MarginContainer/HBoxContainer/ContextPanelContainer/MarginContainer/InterfaceDisplayVBox/SearchFilteringSetting/HBoxContainer"]
+[node name="CompletePathCheck" type="CheckButton" parent="SettingPanelContainer/MarginContainer/HBoxContainer/ContextPanelContainer/MarginContainer/InterfaceDisplayVBox/CompletePathSetting/HBoxContainer"]
+unique_name_in_owner = true
 layout_mode = 2
 text = "开启/关闭"
 
@@ -409,7 +410,7 @@ layout_mode = 2
 
 [node name="PluginIntroductionPanel" type="PanelContainer" parent="SettingPanelContainer/MarginContainer/HBoxContainer"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(250, 0)
+custom_minimum_size = Vector2(300, 0)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_hmdan")
 
