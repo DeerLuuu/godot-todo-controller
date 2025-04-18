@@ -11,11 +11,10 @@ var current_script : String
 
 var current_panel : TodoControllerPanel
 
-var mouse_in_rmb_panel : bool = false
-
 func _input(event: InputEvent) -> void:
 	if event is InputEventMouseButton:
-		if mouse_in_rmb_panel: return
+		if get_viewport().gui_get_hovered_control().name == "ScriptRMBPanel": return
+		if get_viewport().gui_get_hovered_control() is Button: return
 		if event.button_index == MOUSE_BUTTON_LEFT and event.is_pressed():
 			queue_free()
 
@@ -32,11 +31,6 @@ func set_script_rmb(_current_script : String = "", _current_panel : TodoControll
 	un_star_button = %UnStarButton
 	open_script_button = %OpenScriptButton
 	cancel_button = %CancelButton
-
-	open_script_button.mouse_entered.connect(_on_button_mouse_entered)
-	cancel_button.mouse_entered.connect(_on_button_mouse_entered)
-	star_button.mouse_entered.connect(_on_button_mouse_entered)
-	un_star_button.mouse_entered.connect(_on_button_mouse_entered)
 
 	star_button.disabled = current_panel.star_list.has(current_script)
 	un_star_button.disabled = not star_button.disabled
@@ -75,12 +69,3 @@ func _on_open_script_button_pressed() -> void:
 # 点击取消按钮的方法
 func _on_cancel_button_pressed() -> void:
 	queue_free()
-
-func _on_button_mouse_entered() -> void:
-	mouse_in_rmb_panel = true
-
-func _on_mouse_entered() -> void:
-	mouse_in_rmb_panel = true
-
-func _on_mouse_exited() -> void:
-	mouse_in_rmb_panel = false

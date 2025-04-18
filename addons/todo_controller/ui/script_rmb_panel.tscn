@@ -26,6 +26,7 @@ script = ExtResource("1_tan0d")
 
 [node name="MarginContainer" type="MarginContainer" parent="."]
 layout_mode = 2
+mouse_filter = 2
 theme_override_constants/margin_left = 8
 theme_override_constants/margin_top = 8
 theme_override_constants/margin_right = 8
@@ -33,6 +34,7 @@ theme_override_constants/margin_bottom = 8
 
 [node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer"]
 layout_mode = 2
+mouse_filter = 2
 
 [node name="StarButton" type="Button" parent="MarginContainer/VBoxContainer"]
 unique_name_in_owner = true
