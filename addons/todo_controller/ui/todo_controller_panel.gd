@@ -35,6 +35,7 @@ var keywords_critical : Array
 var current_tree : Tree
 
 # INFO 设置界面的变量
+@onready var button_v_box: VBoxContainer = %ButtonVBox
 @onready var interface_display_button: Button = %InterfaceDisplayButton
 @onready var search_filtering_button: Button = %SearchFilteringButton
 @onready var blacklist_button: Button = %BlacklistButton
@@ -43,12 +44,25 @@ var current_tree : Tree
 @onready var update_button: Button = %UpdateButton
 @onready var issue_button: Button = %IssueButton
 
+@onready var context_scroll_container: ScrollContainer = %ContextScrollContainer
+@onready var interface_display_v_box: VBoxContainer = %InterfaceDisplayVBox
+@onready var search_filtering_v_box: VBoxContainer = %SearchFilteringVBox
+@onready var blacklist_v_box: VBoxContainer = %BlacklistVBox
+@onready var theme_v_box: VBoxContainer = %ThemeVBox
+
 @onready var line_number_show_setting_check: CheckButton = %LineNumberShowSettingCheck
 @onready var complete_path_check: CheckButton = %CompletePathCheck
+@onready var case_sensitive_check: CheckButton = %CaseSensitiveCheck
+
+@onready var notice_list_line: LineEdit = %NoticeListLine
+@onready var warning_list_line: LineEdit = %WarningListLine
+@onready var critical_list_line: LineEdit = %CriticalListLine
 
 # INFO 设置选项
 # 大小写
 var is_case_sensitive : bool = false
+# 大小写默认值
+var case_sensitive_default : bool = false
 # 行号显示
 var line_number_show : bool = true
 # 完整路径
@@ -74,13 +88,11 @@ func _ready() -> void:
 	set_tab_title(0, "TODO管理器")
 	set_tab_title(1, "设置")
 
-	var settings = EditorInterface.get_editor_settings()
-	keywords = settings.get_setting("text_editor/theme/highlighting/comment_markers/warning_list").split(",")
-	keywords_notice = settings.get_setting("text_editor/theme/highlighting/comment_markers/notice_list").split(",")
-	keywords_critical = settings.get_setting("text_editor/theme/highlighting/comment_markers/critical_list").split(",")
-
+	load_list_in_setting()
 	reset_todo_controller()
 	script_tree_can_selected()
+
+	case_sensitive_button.button_pressed = case_sensitive_default
 
 	# NOTE 设置的初始化内容
 	interface_display_button.pressed.connect(_on_interface_display_button_pressed)
@@ -91,8 +103,15 @@ func _ready() -> void:
 	update_button.pressed.connect(_on_update_button_pressed)
 	issue_button.pressed.connect(_on_issue_button_pressed)
 
+	interface_display_button.pressed.emit()
+
 	line_number_show_setting_check.toggled.connect(_on_line_number_show_setting_check_toggled)
 	complete_path_check.toggled.connect(_on_complete_path_check_toggled)
+	case_sensitive_check.toggled.connect(_on_case_sensitive_check_toggled)
+
+	notice_list_line.editing_toggled.connect(_on_notice_list_line_editing_toggled)
+	warning_list_line.editing_toggled.connect(_on_warning_list_line_editing_toggled)
+	critical_list_line.editing_toggled.connect(_on_critical_list_line_editing_toggled)
 
 	setting_panel_container.visibility_changed.connect(_on_setting_panel_container_visibility_changed)
 
@@ -438,6 +457,16 @@ func _on_annotation_code_tree_item_selected() -> void:
 		EditorInterface.edit_resource(load(annotation_arr[0]))
 		EditorInterface.get_script_editor().goto_line(annotation_arr[1] - 1)
 
+func load_list_in_setting() -> void:
+	var settings = EditorInterface.get_editor_settings()
+	warning_list_line.text = settings.get_setting("text_editor/theme/highlighting/comment_markers/warning_list")
+	notice_list_line.text = settings.get_setting("text_editor/theme/highlighting/comment_markers/notice_list")
+	critical_list_line.text = settings.get_setting("text_editor/theme/highlighting/comment_markers/critical_list")
+
+	keywords = warning_list_line.text.split(",")
+	keywords_notice = notice_list_line.text.split(",")
+	keywords_critical = critical_list_line.text.split(",")
+
 # TODO 获取某行注释的注释关键字的方法
 func get_annotation_key(annotation : String) -> String:
 	for i in keywords.size():
@@ -513,7 +542,8 @@ func _on_case_sensitive_button_toggled(toggled : bool) -> void:
 
 # TODO 搜索编辑器中的文本改变时的方法
 func _on_scratch_edit_text_changed(new_text: String) -> void:
-	current_tree.item_mouse_selected.emit(Vector2.ZERO, 1)
+	if current_tree:
+		current_tree.item_mouse_selected.emit(Vector2.ZERO, 1)
 	if new_text != "":
 		for s in annotation_code_tree.get_root().get_children():
 			var is_has_annotion : bool = false
@@ -548,31 +578,68 @@ func _on_scratch_edit_text_changed(new_text: String) -> void:
 
 # TODO 界面显示设置按钮
 func _on_interface_display_button_pressed() -> void:
-	pass # Replace with function body.
+	for i in button_v_box.get_children():
+		if not i.disabled: continue
+		i.disabled = false
+		break
+	for i in context_scroll_container.get_children():
+		i.hide()
+	interface_display_v_box.show()
+	interface_display_button.disabled = true
 
 # TODO 搜索与过滤按钮
 func _on_search_filtering_button_pressed() -> void:
-	pass # Replace with function body.
+	for i in button_v_box.get_children():
+		if not i.disabled: continue
+		i.disabled = false
+		break
+	for i in context_scroll_container.get_children():
+		i.hide()
+	search_filtering_v_box.show()
+	search_filtering_button.disabled = true
 
 # TODO 文件黑名单按钮
 func _on_blacklist_button_pressed() -> void:
-	pass # Replace with function body.
-
-# TODO 恢复默认设置按钮
-func _on_recovery_button_pressed() -> void:
-	pass # Replace with function body.
+	for i in button_v_box.get_children():
+		if not i.disabled: continue
+		i.disabled = false
+		break
+	for i in context_scroll_container.get_children():
+		i.hide()
+	blacklist_v_box.show()
+	blacklist_button.disabled = true
 
 # TODO 插件主题设置按钮
 func _on_theme_button_pressed() -> void:
-	pass # Replace with function body.
+	for i in button_v_box.get_children():
+		if not i.disabled: continue
+		i.disabled = false
+		break
+	for i in context_scroll_container.get_children():
+		i.hide()
+	theme_v_box.show()
+	theme_button.disabled = true
+
+# TODO 恢复默认设置按钮
+func _on_recovery_button_pressed() -> void:
+	var dialog : AcceptDialog = AcceptDialog.new()
+	dialog.confirmed.connect(_on_dialog_confirmed)
+	dialog.add_cancel_button("取消")
+	dialog.dialog_text = "是否要恢复默认设置"
+	dialog.position = get_viewport_rect().size / 2
+	EditorInterface.popup_dialog(dialog)
+
+# TODO 确认恢复设置弹窗的确定按钮
+func _on_dialog_confirmed() -> void:
+	reset_config()
 
 # TODO 更新日志按钮
 func _on_update_button_pressed() -> void:
-	pass # Replace with function body.
+	OS.shell_open("https://github.com/DeerLuuu/godot-todo-controller/releases")
 
 # TODO 错误提交按钮
 func _on_issue_button_pressed() -> void:
-	pass # Replace with function body.
+	OS.shell_open("https://github.com/DeerLuuu/godot-todo-controller/issues")
 
 # TODO 行号显示按钮切换
 func _on_line_number_show_setting_check_toggled(toggled_on: bool) -> void:
@@ -584,7 +651,38 @@ func _on_complete_path_check_toggled(toggled_on: bool) -> void:
 	complete_path_show = toggled_on
 	save_config()
 
-# TODO 读取存档
+# TODO 大小写区分默认值切换
+func _on_case_sensitive_check_toggled(toggled_on: bool) -> void:
+	case_sensitive_default = toggled_on
+	save_config()
+
+# TODO 危急列表编辑完成
+func _on_critical_list_line_editing_toggled(toggled_on: bool) -> void:
+	var setting = EditorInterface.get_editor_settings()
+	setting.set_setting("text_editor/theme/highlighting/comment_markers/critical_list", critical_list_line.text)
+	load_list_in_setting()
+
+# TODO 警告列表编辑完成
+func _on_warning_list_line_editing_toggled(toggled_on: bool) -> void:
+	var setting = EditorInterface.get_editor_settings()
+	setting.set_setting("text_editor/theme/highlighting/comment_markers/warning_list", warning_list_line.text)
+	load_list_in_setting()
+
+# TODO 提示列表编辑完成
+func _on_notice_list_line_editing_toggled(toggled_on: bool) -> void:
+	var setting = EditorInterface.get_editor_settings()
+	setting.set_setting("text_editor/theme/highlighting/comment_markers/notice_list", notice_list_line.text)
+	load_list_in_setting()
+
+# TODO 刷新设置
+func _on_setting_panel_container_visibility_changed() -> void:
+	line_number_show_setting_check.button_pressed = line_number_show
+	complete_path_check.button_pressed = complete_path_show
+	case_sensitive_check.button_pressed = case_sensitive_default
+
+# NOTE 以下代码为读写存档的代码
+
+# TODO 读取设置
 func load_config() -> void:
 	var config : Config = ResourceLoader.load("res://addons/todo_controller/config/config.tres")
 	if config:
@@ -594,17 +692,27 @@ func load_config() -> void:
 			config.star_list.erase(i)
 		star_list = config.star_list
 		complete_path_show = config.complete_path_show
+		case_sensitive_default = config.case_sensitive_default
 
 		line_number_show = config.line_number_show
 
-# TODO 保存存档
+# TODO 保存设置
 func save_config() -> void:
 	var config : Config = Config.new()
 	config.star_list = star_list
 	config.line_number_show = line_number_show
 	config.complete_path_show = complete_path_show
+	config.case_sensitive_default = case_sensitive_default
 	ResourceSaver.save(config, "res://addons/todo_controller/config/config.tres")
 
-# TODO 刷新设置
-func _on_setting_panel_container_visibility_changed() -> void:
-	line_number_show_setting_check.button_pressed = line_number_show
+# TODO 恢复默认设置
+func reset_config() -> void:
+	star_list = []
+	complete_path_show = false
+	case_sensitive_default = false
+	line_number_show = true
+
+	var setting = EditorInterface.get_editor_settings()
+	setting.set_setting("text_editor/theme/highlighting/comment_markers/critical_list", "INFO,NOTE,NOTICE,TEST,TESTING")
+	setting.set_setting("text_editor/theme/highlighting/comment_markers/warning_list", "BUG,DEPRECATED,FIXME,HACK,TASK,TBD,TODO,WARNING")
+	setting.set_setting("text_editor/theme/highlighting/comment_markers/notice_list", "ALERT,ATTENTION,CAUTION,CRITICAL,DANGER,SECURITY")
