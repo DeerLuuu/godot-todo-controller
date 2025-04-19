@@ -769,14 +769,15 @@ func _on_add_black_bar_button_pressed() -> void:
 		create_dialog("脚本已被收藏，确定加入黑名单，并移除收藏", _on_add_black_dialog_confirmed.bind(true), true)
 		return
 
-	black_list.append(create_black_bar_line.text)
+	var _black_list : Array = black_list
+	_black_list.append(create_black_bar_line.text)
+	black_list = _black_list
 	update_black_bar_v_box()
 
 # TODO 更新黑名单列表
 func update_black_bar_v_box() -> void:
 	for i in blacklist_bar_v_box.get_children(): i.queue_free()
-	for i in black_list:
-		create_black_bar(i)
+	for i in black_list: create_black_bar(i)
 
 	reset_todo_controller()
 
