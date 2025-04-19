@@ -3,6 +3,7 @@ class_name Config extends Resource
 
 @export var star_list : Array
 @export var black_list : Array
+@export var script_tool_tip_list : Dictionary
 @export var line_number_show : bool
 @export var complete_path_show : bool
 @export var case_sensitive_default : bool

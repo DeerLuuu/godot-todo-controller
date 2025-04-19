@@ -32,38 +32,83 @@ theme_override_constants/margin_top = 8
 theme_override_constants/margin_right = 8
 theme_override_constants/margin_bottom = 8
 
-[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer"]
+[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer"]
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/HBoxContainer"]
 layout_mode = 2
 mouse_filter = 2
 
-[node name="StarButton" type="Button" parent="MarginContainer/VBoxContainer"]
+[node name="StarButton" type="Button" parent="MarginContainer/HBoxContainer/VBoxContainer"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(150, 0)
 layout_mode = 2
 text = "收藏"
 
-[node name="UnStarButton" type="Button" parent="MarginContainer/VBoxContainer"]
+[node name="UnStarButton" type="Button" parent="MarginContainer/HBoxContainer/VBoxContainer"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(150, 0)
 layout_mode = 2
 disabled = true
 text = "取消收藏"
 
-[node name="OpenScriptButton" type="Button" parent="MarginContainer/VBoxContainer"]
+[node name="OpenScriptButton" type="Button" parent="MarginContainer/HBoxContainer/VBoxContainer"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(150, 0)
 layout_mode = 2
 text = "打开脚本"
 
-[node name="CancelButton" type="Button" parent="MarginContainer/VBoxContainer"]
+[node name="ToolTipButton" type="Button" parent="MarginContainer/HBoxContainer/VBoxContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(150, 0)
+layout_mode = 2
+text = "脚本简介"
+
+[node name="CancelButton" type="Button" parent="MarginContainer/HBoxContainer/VBoxContainer"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(150, 0)
 layout_mode = 2
 text = "取消"
 
+[node name="DescVBox" type="VBoxContainer" parent="MarginContainer/HBoxContainer"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+
+[node name="Label" type="Label" parent="MarginContainer/HBoxContainer/DescVBox"]
+custom_minimum_size = Vector2(150, 0)
+layout_mode = 2
+text = "简介设置"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="DescTextEdit" type="TextEdit" parent="MarginContainer/HBoxContainer/DescVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+placeholder_text = "请输入脚本简介内容"
+wrap_mode = 1
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/HBoxContainer/DescVBox"]
+layout_mode = 2
+size_flags_horizontal = 4
+
+[node name="DescYesButton" type="Button" parent="MarginContainer/HBoxContainer/DescVBox/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "确定"
+
+[node name="DescNoButton" type="Button" parent="MarginContainer/HBoxContainer/DescVBox/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "取消"
+
 [connection signal="mouse_entered" from="." to="." method="_on_mouse_entered"]
 [connection signal="mouse_exited" from="." to="." method="_on_mouse_exited"]
-[connection signal="pressed" from="MarginContainer/VBoxContainer/StarButton" to="." method="_on_star_button_pressed"]
-[connection signal="pressed" from="MarginContainer/VBoxContainer/UnStarButton" to="." method="_on_un_star_button_pressed"]
-[connection signal="pressed" from="MarginContainer/VBoxContainer/OpenScriptButton" to="." method="_on_open_script_button_pressed"]
-[connection signal="pressed" from="MarginContainer/VBoxContainer/CancelButton" to="." method="_on_cancel_button_pressed"]
+[connection signal="pressed" from="MarginContainer/HBoxContainer/VBoxContainer/StarButton" to="." method="_on_star_button_pressed"]
+[connection signal="pressed" from="MarginContainer/HBoxContainer/VBoxContainer/UnStarButton" to="." method="_on_un_star_button_pressed"]
+[connection signal="pressed" from="MarginContainer/HBoxContainer/VBoxContainer/OpenScriptButton" to="." method="_on_open_script_button_pressed"]
+[connection signal="pressed" from="MarginContainer/HBoxContainer/VBoxContainer/ToolTipButton" to="." method="_on_tool_tip_button_pressed"]
+[connection signal="pressed" from="MarginContainer/HBoxContainer/VBoxContainer/CancelButton" to="." method="_on_cancel_button_pressed"]
+[connection signal="pressed" from="MarginContainer/HBoxContainer/DescVBox/HBoxContainer/DescYesButton" to="." method="_on_desc_yes_button_pressed"]
+[connection signal="pressed" from="MarginContainer/HBoxContainer/DescVBox/HBoxContainer/DescNoButton" to="." method="_on_desc_no_button_pressed"]

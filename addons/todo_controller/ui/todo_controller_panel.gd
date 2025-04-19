@@ -77,6 +77,13 @@ var case_sensitive_default : bool = false
 var line_number_show : bool = true
 # 完整路径
 var complete_path_show : bool = false
+# 脚本简介字典
+var script_tool_tip_list : Dictionary = {}:
+	set(v):
+		script_tool_tip_list = v
+		save_config()
+		update_star_script_tree()
+		update_script_tree()
 
 func _ready() -> void:
 	# NOTE Todo 管理器的初始化内容
@@ -170,6 +177,8 @@ func update_script_tree() -> void:
 		if d in star_list:
 			tree_item.set_text(0, "%3s" % STAR + script_name)
 		tree_item.set_custom_color(0, Color.AQUAMARINE)
+		if script_tool_tip_list.has(d):
+			tree_item.set_tooltip_text(0, script_tool_tip_list[d])
 
 		left_list_x = \
 			left_list_x \
@@ -194,6 +203,8 @@ func update_star_script_tree() -> void:
 		tree_item.set_custom_font_size(0, 16)
 		tree_item.set_text(0, "%3s" % STAR + script_name)
 		tree_item.set_custom_color(0, Color.AQUAMARINE)
+		if script_tool_tip_list.has(d):
+			tree_item.set_tooltip_text(0, script_tool_tip_list[d])
 
 # TODO 脚本列表双击时的方法
 func _on_script_tree_item_activated(tree : Tree) -> void:
@@ -609,8 +620,13 @@ func load_config() -> void:
 			if i in script_list: continue
 			config.black_list.erase(i)
 
+		for i in config.script_tool_tip_list.keys():
+			if i in script_list: continue
+			config.script_tool_tip_list.erase(i)
+
 		star_list = config.star_list
 		black_list = config.black_list
+		script_tool_tip_list = config.script_tool_tip_list
 		complete_path_show = config.complete_path_show
 		case_sensitive_default = config.case_sensitive_default
 
@@ -624,6 +640,7 @@ func save_config() -> void:
 	config.line_number_show = line_number_show
 	config.complete_path_show = complete_path_show
 	config.case_sensitive_default = case_sensitive_default
+	config.script_tool_tip_list = script_tool_tip_list
 	ResourceSaver.save(config, "res://addons/todo_controller/config/config.tres")
 
 # TODO 恢复默认设置
