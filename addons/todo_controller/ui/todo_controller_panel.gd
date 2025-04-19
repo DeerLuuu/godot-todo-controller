@@ -2,6 +2,7 @@
 # INFO Todo Controller 的主要面板类
 class_name TodoControllerPanel extends TabContainer
 
+const BLACK_BAR = preload("res://addons/todo_controller/ui/black_bar.tscn")
 const SCRIPT_RMB_PANEL = preload("res://addons/todo_controller/ui/script_rmb_panel.tscn")
 const STAR : String = "♥"
 const NOT_STAR : String = "♡"
@@ -25,7 +26,10 @@ var star_list : Array:
 	set(v):
 		star_list = v
 		save_config()
-
+var black_list : Array:
+	set(v):
+		black_list = v
+		save_config()
 var script_list : Array
 
 var left_list_x : float
@@ -59,6 +63,10 @@ var current_tree : Tree
 @onready var notice_color_picker: ColorPickerButton = %NoticeColorPicker
 @onready var warning_color_picker: ColorPickerButton = %WarningColorPicker
 @onready var critical_color_picker: ColorPickerButton = %CriticalColorPicker
+
+@onready var create_black_bar_line: LineEdit = %CreateBlackBarLine
+@onready var add_black_bar_button: Button = %AddBlackBarButton
+@onready var blacklist_bar_v_box: VBoxContainer = %BlacklistBarVBox
 
 # INFO 设置选项
 # 大小写
@@ -118,6 +126,8 @@ func _ready() -> void:
 	warning_color_picker.color_changed.connect(_on_warning_color_picker_color_changed)
 	critical_color_picker.color_changed.connect(_on_critical_color_picker_color_changed)
 
+	add_black_bar_button.pressed.connect(_on_add_black_bar_button_pressed)
+
 	setting_panel_container.visibility_changed.connect(_on_setting_panel_container_visibility_changed)
 
 # NOTE 以下部分为 Todo 管理器 界面的代码
@@ -132,6 +142,9 @@ func script_tree_can_selected() -> void:
 # TODO 生成脚本列表中的树的方法
 func reset_todo_controller() -> void:
 	script_list = get_scripte_list("res://")
+
+	for i in script_list:
+		if i in black_list: script_list.erase(i)
 
 	if FileAccess.file_exists("res://addons/todo_controller/config/config.tres"):
 		load_config()
@@ -505,7 +518,6 @@ func get_scripte_list(root_path : String) -> Array:
 				# 递归处理子目录
 				scripts.append_array(get_scripte_list(full_path))
 			else:
-				# 判断文件扩展名
 				if file_name.get_extension() == "gd":
 					scripts.append(full_path)
 
@@ -590,10 +602,15 @@ func load_config() -> void:
 	var config : Config = ResourceLoader.load("res://addons/todo_controller/config/config.tres")
 	if config:
 		for i in config.star_list:
-			if i in script_list:
-				continue
+			if i in script_list: continue
 			config.star_list.erase(i)
+
+		for i in config.black_list:
+			if i in script_list: continue
+			config.black_list.erase(i)
+
 		star_list = config.star_list
+		black_list = config.black_list
 		complete_path_show = config.complete_path_show
 		case_sensitive_default = config.case_sensitive_default
 
@@ -603,6 +620,7 @@ func load_config() -> void:
 func save_config() -> void:
 	var config : Config = Config.new()
 	config.star_list = star_list
+	config.black_list = black_list
 	config.line_number_show = line_number_show
 	config.complete_path_show = complete_path_show
 	config.case_sensitive_default = case_sensitive_default
@@ -623,6 +641,10 @@ func reset_config() -> void:
 	load_list_in_setting()
 
 # NOTE 以下部分为 设置 界面的代码
+
+# TODO 赞助按钮
+func _on_afdian_button_pressed() -> void:
+	OS.shell_open("https://afdian.tv/a/zhulu")
 
 # TODO 界面显示设置按钮
 func _on_interface_display_button_pressed() -> void:
@@ -646,6 +668,8 @@ func _on_blacklist_button_pressed() -> void:
 	blacklist_v_box.show()
 	blacklist_button.disabled = true
 
+	update_black_bar_v_box()
+
 # TODO 插件主题设置按钮
 func _on_theme_button_pressed() -> void:
 	for i in button_v_box.get_children():
@@ -659,12 +683,7 @@ func _on_theme_button_pressed() -> void:
 
 # TODO 恢复默认设置按钮
 func _on_recovery_button_pressed() -> void:
-	var dialog : AcceptDialog = AcceptDialog.new()
-	dialog.confirmed.connect(_on_dialog_confirmed)
-	dialog.add_cancel_button("取消")
-	dialog.dialog_text = "是否要恢复默认设置"
-	dialog.position = get_viewport_rect().size / 2
-	EditorInterface.popup_dialog(dialog)
+	create_dialog("是否要恢复默认设置", _on_dialog_confirmed, true)
 
 # TODO 确认恢复设置弹窗的确定按钮
 func _on_dialog_confirmed() -> void:
@@ -693,6 +712,12 @@ func _on_case_sensitive_check_toggled(toggled_on: bool) -> void:
 	case_sensitive_default = toggled_on
 	save_config()
 
+# TODO 刷新设置
+func _on_setting_panel_container_visibility_changed() -> void:
+	line_number_show_setting_check.button_pressed = line_number_show
+	complete_path_check.button_pressed = complete_path_show
+	case_sensitive_check.button_pressed = case_sensitive_default
+
 # TODO 危急列表编辑完成
 func _on_critical_list_line_editing_toggled(toggled_on: bool) -> void:
 	var setting = EditorInterface.get_editor_settings()
@@ -711,12 +736,6 @@ func _on_notice_list_line_editing_toggled(toggled_on: bool) -> void:
 	setting.set_setting("text_editor/theme/highlighting/comment_markers/notice_list", notice_list_line.text)
 	load_list_in_setting()
 
-# TODO 刷新设置
-func _on_setting_panel_container_visibility_changed() -> void:
-	line_number_show_setting_check.button_pressed = line_number_show
-	complete_path_check.button_pressed = complete_path_show
-	case_sensitive_check.button_pressed = case_sensitive_default
-
 # TODO 提示关键字颜色修改
 func _on_notice_color_picker_color_changed(color: Color) -> void:
 	var setting = EditorInterface.get_editor_settings()
@@ -734,3 +753,63 @@ func _on_critical_color_picker_color_changed(color: Color) -> void:
 	var setting = EditorInterface.get_editor_settings()
 	setting.set_setting("text_editor/theme/highlighting/comment_markers/critical_color", color)
 	load_list_in_setting()
+
+# TODO 添加黑名单条目的按钮
+func _on_add_black_bar_button_pressed() -> void:
+	if create_black_bar_line.text.get_extension() != "gd":
+		create_dialog("请输入正确的脚本路径", _on_add_black_dialog_confirmed)
+		return
+	if create_black_bar_line.text in black_list:
+		create_dialog("黑名单中已有该文件", _on_add_black_dialog_confirmed)
+		return
+	if create_black_bar_line.text not in script_list:
+		create_dialog("该脚本不存在", _on_add_black_dialog_confirmed)
+		return
+	if create_black_bar_line.text in star_list:
+		create_dialog("脚本已被收藏，确定加入黑名单，并移除收藏", _on_add_black_dialog_confirmed.bind(true), true)
+		return
+
+	black_list.append(create_black_bar_line.text)
+	update_black_bar_v_box()
+
+# TODO 更新黑名单列表
+func update_black_bar_v_box() -> void:
+	for i in blacklist_bar_v_box.get_children(): i.queue_free()
+	for i in black_list:
+		create_black_bar(i)
+
+	reset_todo_controller()
+
+# TODO 创建提示弹窗
+func create_dialog(_dialog_text : String, dialog_call : Callable, has_cancel : bool = false) -> void:
+	var add_black_dialog : AcceptDialog = AcceptDialog.new()
+	add_black_dialog.confirmed.connect(dialog_call)
+	if has_cancel: add_black_dialog.add_cancel_button("取消")
+	add_black_dialog.dialog_text = _dialog_text
+	add_black_dialog.position = get_viewport_rect().size / 2
+	EditorInterface.popup_dialog(add_black_dialog)
+
+# TODO 添加黑名单条目的弹窗按钮
+func _on_add_black_dialog_confirmed(is_star : bool = false) -> void:
+	if not is_star: return
+	var _star_list : Array = star_list
+	_star_list.erase(create_black_bar_line.text)
+	star_list = _star_list
+
+	var _black_list : Array = black_list
+	_black_list.append(create_black_bar_line.text)
+	black_list = _black_list
+	update_black_bar_v_box()
+
+# TODO 创建黑名单条目
+func create_black_bar(_black_name : String) -> void:
+	var black_bar : BlackBar = BLACK_BAR.instantiate()
+	blacklist_bar_v_box.add_child(black_bar)
+	black_bar.set_black_bar(_black_name)
+	black_bar.remove_black_bar_button.pressed.connect(func():
+		var _black_list : Array = black_list
+		_black_list.erase(black_bar.black_name)
+		black_list = _black_list
+		update_black_bar_v_box()
+		black_bar.queue_free()
+		)

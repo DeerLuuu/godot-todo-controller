@@ -151,6 +151,7 @@ size_flags_vertical = 3
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 4
+mouse_filter = 2
 allow_reselect = true
 allow_rmb_select = true
 scroll_horizontal_enabled = false
@@ -310,6 +311,7 @@ alignment = 0
 unique_name_in_owner = true
 custom_minimum_size = Vector2(150, 0)
 layout_mode = 2
+tooltip_text = "点击后跳转到Github的版本界面"
 text = "更新日志"
 alignment = 0
 
@@ -317,6 +319,7 @@ alignment = 0
 unique_name_in_owner = true
 custom_minimum_size = Vector2(150, 0)
 layout_mode = 2
+tooltip_text = "点击后跳转到Github的Issue界面"
 text = "错误提交"
 alignment = 0
 
@@ -444,7 +447,7 @@ vertical_alignment = 1
 unique_name_in_owner = true
 custom_minimum_size = Vector2(200, 0)
 layout_mode = 2
-text = "ALERT,ATTENTION,CAUTION,CRITICAL,DANGER,SECURITY"
+text = "INFO,NOTE,NOTICE,TEST,TESTING"
 
 [node name="NoticeColorSetting" type="MarginContainer" parent="SettingPanelContainer/MarginContainer/HBoxContainer/ContextPanelContainer/MarginContainer/ContextScrollContainer/InterfaceDisplayVBox"]
 unique_name_in_owner = true
@@ -465,6 +468,7 @@ vertical_alignment = 1
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
+color = Color(0.3125, 1, 0, 1)
 
 [node name="WarningListSetting" type="MarginContainer" parent="SettingPanelContainer/MarginContainer/HBoxContainer/ContextPanelContainer/MarginContainer/ContextScrollContainer/InterfaceDisplayVBox"]
 unique_name_in_owner = true
@@ -507,6 +511,7 @@ vertical_alignment = 1
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
+color = Color(0.96875, 1, 0, 1)
 
 [node name="CriticalListSetting" type="MarginContainer" parent="SettingPanelContainer/MarginContainer/HBoxContainer/ContextPanelContainer/MarginContainer/ContextScrollContainer/InterfaceDisplayVBox"]
 unique_name_in_owner = true
@@ -528,7 +533,7 @@ vertical_alignment = 1
 unique_name_in_owner = true
 custom_minimum_size = Vector2(200, 0)
 layout_mode = 2
-text = "INFO,NOTE,NOTICE,TEST,TESTING"
+text = "ALERT,ATTENTION,CAUTION,CRITICAL,DANGER,SECURITY"
 
 [node name="CriticalColorSetting" type="MarginContainer" parent="SettingPanelContainer/MarginContainer/HBoxContainer/ContextPanelContainer/MarginContainer/ContextScrollContainer/InterfaceDisplayVBox"]
 unique_name_in_owner = true
@@ -549,10 +554,58 @@ vertical_alignment = 1
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
+color = Color(1, 0, 0, 1)
 
 [node name="BlacklistVBox" type="VBoxContainer" parent="SettingPanelContainer/MarginContainer/HBoxContainer/ContextPanelContainer/MarginContainer/ContextScrollContainer"]
 unique_name_in_owner = true
 visible = false
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="TitleLabel" type="Label" parent="SettingPanelContainer/MarginContainer/HBoxContainer/ContextPanelContainer/MarginContainer/ContextScrollContainer/BlacklistVBox"]
+layout_mode = 2
+text = "文件黑名单"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="MarginContainer" type="MarginContainer" parent="SettingPanelContainer/MarginContainer/HBoxContainer/ContextPanelContainer/MarginContainer/ContextScrollContainer/BlacklistVBox"]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_right = 16
+
+[node name="HBoxContainer" type="HBoxContainer" parent="SettingPanelContainer/MarginContainer/HBoxContainer/ContextPanelContainer/MarginContainer/ContextScrollContainer/BlacklistVBox/MarginContainer"]
+layout_mode = 2
+
+[node name="CreateBlackBarLine" type="LineEdit" parent="SettingPanelContainer/MarginContainer/HBoxContainer/ContextPanelContainer/MarginContainer/ContextScrollContainer/BlacklistVBox/MarginContainer/HBoxContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 36)
+layout_mode = 2
+size_flags_horizontal = 3
+placeholder_text = "请输入要加入黑名单的文件/文件夹"
+
+[node name="AddBlackBarButton" type="Button" parent="SettingPanelContainer/MarginContainer/HBoxContainer/ContextPanelContainer/MarginContainer/ContextScrollContainer/BlacklistVBox/MarginContainer/HBoxContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(36, 36)
+layout_mode = 2
+text = "+"
+
+[node name="ScrollContainer" type="ScrollContainer" parent="SettingPanelContainer/MarginContainer/HBoxContainer/ContextPanelContainer/MarginContainer/ContextScrollContainer/BlacklistVBox"]
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 4
+
+[node name="MarginContainer2" type="MarginContainer" parent="SettingPanelContainer/MarginContainer/HBoxContainer/ContextPanelContainer/MarginContainer/ContextScrollContainer/BlacklistVBox/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
+
+[node name="BlacklistBarVBox" type="VBoxContainer" parent="SettingPanelContainer/MarginContainer/HBoxContainer/ContextPanelContainer/MarginContainer/ContextScrollContainer/BlacklistVBox/ScrollContainer/MarginContainer2"]
+unique_name_in_owner = true
 layout_mode = 2
 
 [node name="ThemeVBox" type="VBoxContainer" parent="SettingPanelContainer/MarginContainer/HBoxContainer/ContextPanelContainer/MarginContainer/ContextScrollContainer"]
@@ -605,7 +658,7 @@ layout_mode = 2
 text = "图标：猫"
 vertical_alignment = 1
 
-[node name="Button6" type="Button" parent="SettingPanelContainer/MarginContainer/HBoxContainer/PluginIntroductionPanel/MarginContainer/ScrollContainer/VBoxContainer"]
+[node name="AfdianButton" type="Button" parent="SettingPanelContainer/MarginContainer/HBoxContainer/PluginIntroductionPanel/MarginContainer/ScrollContainer/VBoxContainer"]
 custom_minimum_size = Vector2(150, 0)
 layout_mode = 2
 text = "赞助我们"
@@ -631,3 +684,5 @@ text = "插件简介：
 9、注释搜索功能（允许全字匹配搜索和不区分大小写搜索）"
 vertical_alignment = 1
 autowrap_mode = 3
+
+[connection signal="pressed" from="SettingPanelContainer/MarginContainer/HBoxContainer/PluginIntroductionPanel/MarginContainer/ScrollContainer/VBoxContainer/AfdianButton" to="." method="_on_afdian_button_pressed"]

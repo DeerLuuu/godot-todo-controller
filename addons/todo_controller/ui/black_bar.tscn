@@ -1,0 +1,42 @@
+[gd_scene load_steps=3 format=3 uid="uid://dru00ffo7k48w"]
+
+[ext_resource type="Script" uid="uid://duo3uyc4mlmtl" path="res://addons/todo_controller/ui/black_bar.gd" id="1_ff5ay"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_qk2vb"]
+bg_color = Color(0.6, 0.6, 0.6, 0)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+
+[node name="BlackBar" type="PanelContainer"]
+offset_right = 40.0
+offset_bottom = 40.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_qk2vb")
+script = ExtResource("1_ff5ay")
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer"]
+layout_mode = 2
+
+[node name="BlackLabel" type="Label" parent="MarginContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "一个黑名单例子"
+
+[node name="RemoveBlackBarButton" type="Button" parent="MarginContainer/HBoxContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(36, 36)
+layout_mode = 2
+text = "X"
