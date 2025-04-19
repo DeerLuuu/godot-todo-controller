@@ -37,7 +37,6 @@ var current_tree : Tree
 # INFO 设置界面的变量
 @onready var button_v_box: VBoxContainer = %ButtonVBox
 @onready var interface_display_button: Button = %InterfaceDisplayButton
-@onready var search_filtering_button: Button = %SearchFilteringButton
 @onready var blacklist_button: Button = %BlacklistButton
 @onready var recovery_button: Button = %RecoveryButton
 @onready var theme_button: Button = %ThemeButton
@@ -46,7 +45,6 @@ var current_tree : Tree
 
 @onready var context_scroll_container: ScrollContainer = %ContextScrollContainer
 @onready var interface_display_v_box: VBoxContainer = %InterfaceDisplayVBox
-@onready var search_filtering_v_box: VBoxContainer = %SearchFilteringVBox
 @onready var blacklist_v_box: VBoxContainer = %BlacklistVBox
 @onready var theme_v_box: VBoxContainer = %ThemeVBox
 
@@ -57,6 +55,10 @@ var current_tree : Tree
 @onready var notice_list_line: LineEdit = %NoticeListLine
 @onready var warning_list_line: LineEdit = %WarningListLine
 @onready var critical_list_line: LineEdit = %CriticalListLine
+
+@onready var notice_color_picker: ColorPickerButton = %NoticeColorPicker
+@onready var warning_color_picker: ColorPickerButton = %WarningColorPicker
+@onready var critical_color_picker: ColorPickerButton = %CriticalColorPicker
 
 # INFO 设置选项
 # 大小写
@@ -96,7 +98,6 @@ func _ready() -> void:
 
 	# NOTE 设置的初始化内容
 	interface_display_button.pressed.connect(_on_interface_display_button_pressed)
-	search_filtering_button.pressed.connect(_on_search_filtering_button_pressed)
 	blacklist_button.pressed.connect(_on_blacklist_button_pressed)
 	recovery_button.pressed.connect(_on_recovery_button_pressed)
 	theme_button.pressed.connect(_on_theme_button_pressed)
@@ -112,6 +113,10 @@ func _ready() -> void:
 	notice_list_line.editing_toggled.connect(_on_notice_list_line_editing_toggled)
 	warning_list_line.editing_toggled.connect(_on_warning_list_line_editing_toggled)
 	critical_list_line.editing_toggled.connect(_on_critical_list_line_editing_toggled)
+
+	notice_color_picker.color_changed.connect(_on_notice_color_picker_color_changed)
+	warning_color_picker.color_changed.connect(_on_warning_color_picker_color_changed)
+	critical_color_picker.color_changed.connect(_on_critical_color_picker_color_changed)
 
 	setting_panel_container.visibility_changed.connect(_on_setting_panel_container_visibility_changed)
 
@@ -463,6 +468,10 @@ func load_list_in_setting() -> void:
 	notice_list_line.text = settings.get_setting("text_editor/theme/highlighting/comment_markers/notice_list")
 	critical_list_line.text = settings.get_setting("text_editor/theme/highlighting/comment_markers/critical_list")
 
+	notice_color_picker.color = settings.get_setting("text_editor/theme/highlighting/comment_markers/notice_color")
+	warning_color_picker.color = settings.get_setting("text_editor/theme/highlighting/comment_markers/warning_color")
+	critical_color_picker.color = settings.get_setting("text_editor/theme/highlighting/comment_markers/critical_color")
+
 	keywords = warning_list_line.text.split(",")
 	keywords_notice = notice_list_line.text.split(",")
 	keywords_critical = critical_list_line.text.split(",")
@@ -574,6 +583,45 @@ func _on_scratch_edit_text_changed(new_text: String) -> void:
 				annotation_code_tree.get_root().remove_child(s)
 				s.free()
 
+# NOTE 以下代码为读写存档的代码
+
+# TODO 读取设置
+func load_config() -> void:
+	var config : Config = ResourceLoader.load("res://addons/todo_controller/config/config.tres")
+	if config:
+		for i in config.star_list:
+			if i in script_list:
+				continue
+			config.star_list.erase(i)
+		star_list = config.star_list
+		complete_path_show = config.complete_path_show
+		case_sensitive_default = config.case_sensitive_default
+
+		line_number_show = config.line_number_show
+
+# TODO 保存设置
+func save_config() -> void:
+	var config : Config = Config.new()
+	config.star_list = star_list
+	config.line_number_show = line_number_show
+	config.complete_path_show = complete_path_show
+	config.case_sensitive_default = case_sensitive_default
+	ResourceSaver.save(config, "res://addons/todo_controller/config/config.tres")
+
+# TODO 恢复默认设置
+func reset_config() -> void:
+	star_list = []
+	complete_path_show = false
+	case_sensitive_default = false
+	line_number_show = true
+
+	var setting = EditorInterface.get_editor_settings()
+	setting.set_setting("text_editor/theme/highlighting/comment_markers/critical_list", "ALERT,ATTENTION,CAUTION,CRITICAL,DANGER,SECURITY")
+	setting.set_setting("text_editor/theme/highlighting/comment_markers/warning_list", "BUG,DEPRECATED,FIXME,HACK,TASK,TBD,TODO,WARNING")
+	setting.set_setting("text_editor/theme/highlighting/comment_markers/notice_list", "INFO,NOTE,NOTICE,TEST,TESTING")
+
+	load_list_in_setting()
+
 # NOTE 以下部分为 设置 界面的代码
 
 # TODO 界面显示设置按钮
@@ -586,17 +634,6 @@ func _on_interface_display_button_pressed() -> void:
 		i.hide()
 	interface_display_v_box.show()
 	interface_display_button.disabled = true
-
-# TODO 搜索与过滤按钮
-func _on_search_filtering_button_pressed() -> void:
-	for i in button_v_box.get_children():
-		if not i.disabled: continue
-		i.disabled = false
-		break
-	for i in context_scroll_container.get_children():
-		i.hide()
-	search_filtering_v_box.show()
-	search_filtering_button.disabled = true
 
 # TODO 文件黑名单按钮
 func _on_blacklist_button_pressed() -> void:
@@ -680,39 +717,20 @@ func _on_setting_panel_container_visibility_changed() -> void:
 	complete_path_check.button_pressed = complete_path_show
 	case_sensitive_check.button_pressed = case_sensitive_default
 
-# NOTE 以下代码为读写存档的代码
-
-# TODO 读取设置
-func load_config() -> void:
-	var config : Config = ResourceLoader.load("res://addons/todo_controller/config/config.tres")
-	if config:
-		for i in config.star_list:
-			if i in script_list:
-				continue
-			config.star_list.erase(i)
-		star_list = config.star_list
-		complete_path_show = config.complete_path_show
-		case_sensitive_default = config.case_sensitive_default
-
-		line_number_show = config.line_number_show
-
-# TODO 保存设置
-func save_config() -> void:
-	var config : Config = Config.new()
-	config.star_list = star_list
-	config.line_number_show = line_number_show
-	config.complete_path_show = complete_path_show
-	config.case_sensitive_default = case_sensitive_default
-	ResourceSaver.save(config, "res://addons/todo_controller/config/config.tres")
-
-# TODO 恢复默认设置
-func reset_config() -> void:
-	star_list = []
-	complete_path_show = false
-	case_sensitive_default = false
-	line_number_show = true
-
+# TODO 提示关键字颜色修改
+func _on_notice_color_picker_color_changed(color: Color) -> void:
 	var setting = EditorInterface.get_editor_settings()
-	setting.set_setting("text_editor/theme/highlighting/comment_markers/critical_list", "INFO,NOTE,NOTICE,TEST,TESTING")
-	setting.set_setting("text_editor/theme/highlighting/comment_markers/warning_list", "BUG,DEPRECATED,FIXME,HACK,TASK,TBD,TODO,WARNING")
-	setting.set_setting("text_editor/theme/highlighting/comment_markers/notice_list", "ALERT,ATTENTION,CAUTION,CRITICAL,DANGER,SECURITY")
+	setting.set_setting("text_editor/theme/highlighting/comment_markers/notice_color", color)
+	load_list_in_setting()
+
+# TODO 警告关键字颜色修改
+func _on_warning_color_picker_color_changed(color: Color) -> void:
+	var setting = EditorInterface.get_editor_settings()
+	setting.set_setting("text_editor/theme/highlighting/comment_markers/warning_color", color)
+	load_list_in_setting()
+
+# TODO 危急关键字颜色修改
+func _on_critical_color_picker_color_changed(color: Color) -> void:
+	var setting = EditorInterface.get_editor_settings()
+	setting.set_setting("text_editor/theme/highlighting/comment_markers/critical_color", color)
+	load_list_in_setting()
