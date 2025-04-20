@@ -30,6 +30,11 @@ var black_list : Array:
 	set(v):
 		black_list = v
 		save_config()
+
+var black_dirs : Array = []:
+	set(v):
+		black_dirs = v
+		save_config()
 var script_list : Array
 
 var left_list_x : float
@@ -109,6 +114,8 @@ func _ready() -> void:
 	reset_todo_controller()
 	script_tree_can_selected()
 
+	update_black_bar_v_box()
+
 	case_sensitive_button.button_pressed = case_sensitive_default
 
 	# NOTE 设置的初始化内容
@@ -150,11 +157,11 @@ func script_tree_can_selected() -> void:
 func reset_todo_controller() -> void:
 	script_list = get_scripte_list("res://")
 
-	for i in script_list:
-		if i in black_list: script_list.erase(i)
-
 	if FileAccess.file_exists("res://addons/todo_controller/config/config.tres"):
 		load_config()
+
+	for i in black_list:
+		script_list.erase(i)
 
 	update_star_script_tree()
 	update_script_tree()
@@ -521,11 +528,10 @@ func get_scripte_list(root_path : String) -> Array:
 	if dir:
 		dir.list_dir_begin()
 		var file_name = dir.get_next()
-
 		while file_name != "":
 			var full_path = root_path.path_join(file_name)
 
-			if dir.current_is_dir() and not _is_special_dir(file_name):
+			if dir.current_is_dir() and not _is_special_dir(file_name) and full_path not in black_dirs:
 				# 递归处理子目录
 				scripts.append_array(get_scripte_list(full_path))
 			else:
@@ -620,12 +626,17 @@ func load_config() -> void:
 			if i in script_list: continue
 			config.black_list.erase(i)
 
+		for i in config.black_dirs:
+			if DirAccess.dir_exists_absolute(i): continue
+			config.black_list.erase(i)
+
 		for i in config.script_tool_tip_list.keys():
 			if i in script_list: continue
 			config.script_tool_tip_list.erase(i)
 
 		star_list = config.star_list
 		black_list = config.black_list
+		black_dirs = config.black_dirs
 		script_tool_tip_list = config.script_tool_tip_list
 		complete_path_show = config.complete_path_show
 		case_sensitive_default = config.case_sensitive_default
@@ -637,6 +648,7 @@ func save_config() -> void:
 	var config : Config = Config.new()
 	config.star_list = star_list
 	config.black_list = black_list
+	config.black_dirs = black_dirs
 	config.line_number_show = line_number_show
 	config.complete_path_show = complete_path_show
 	config.case_sensitive_default = case_sensitive_default
@@ -773,8 +785,23 @@ func _on_critical_color_picker_color_changed(color: Color) -> void:
 
 # TODO 添加黑名单条目的按钮
 func _on_add_black_bar_button_pressed() -> void:
+	if create_black_bar_line.text == "":
+		create_dialog("路径不能为空", _on_add_black_dialog_confirmed)
+		return
 	if create_black_bar_line.text.get_extension() != "gd":
-		create_dialog("请输入正确的脚本路径", _on_add_black_dialog_confirmed)
+		if DirAccess.dir_exists_absolute(create_black_bar_line.text):
+			if create_black_bar_line.text in black_dirs:
+				create_dialog("黑名单中已有该文件夹", _on_add_black_dialog_confirmed)
+				return
+			var black_file_dir : String = create_black_bar_line.text
+			if create_black_bar_line.text.ends_with("/"):
+				black_file_dir = create_black_bar_line.text.erase(create_black_bar_line.text.length() -1 , create_black_bar_line.text.length())
+			var _black_dirs : Array = black_dirs
+			_black_dirs.append(black_file_dir)
+			black_dirs = _black_dirs
+			update_black_bar_v_box()
+			return
+		create_dialog("请输入正确的路径", _on_add_black_dialog_confirmed)
 		return
 	if create_black_bar_line.text in black_list:
 		create_dialog("黑名单中已有该文件", _on_add_black_dialog_confirmed)
@@ -794,6 +821,7 @@ func _on_add_black_bar_button_pressed() -> void:
 # TODO 更新黑名单列表
 func update_black_bar_v_box() -> void:
 	for i in blacklist_bar_v_box.get_children(): i.queue_free()
+	for i in black_dirs: create_black_bar(i)
 	for i in black_list: create_black_bar(i)
 
 	reset_todo_controller()
@@ -825,9 +853,16 @@ func create_black_bar(_black_name : String) -> void:
 	blacklist_bar_v_box.add_child(black_bar)
 	black_bar.set_black_bar(_black_name)
 	black_bar.remove_black_bar_button.pressed.connect(func():
+		if not black_bar.black_name.get_extension() == "gd":
+			var _black_dirs : Array = black_dirs
+			_black_dirs.erase(black_bar.black_name)
+			black_dirs = _black_dirs
+			black_bar.queue_free()
+			update_black_bar_v_box()
+			return
 		var _black_list : Array = black_list
 		_black_list.erase(black_bar.black_name)
 		black_list = _black_list
-		update_black_bar_v_box()
 		black_bar.queue_free()
+		update_black_bar_v_box()
 		)
