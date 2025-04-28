@@ -2,11 +2,11 @@
 # Godot TODO Controller
   这是一个用来管理gds代码中的TODO注释的插件
 ---
-### Getting Started
+### 入门
 
-1. [Install the plugin](https://docs.godotengine.org/en/stable/tutorials/plugins/editor/installing_plugins.html) by copying over the `addons` folder from the full package.
+1. [安装插件](https://docs.godotengine.org/en/stable/tutorials/plugins/editor/installing_plugins.html) 通过复制 'addons' 文件夹到你的包中。
 
-2. Enable the plugin in `Project > Project Settings > Plugins`.
+2. 启动插件： `Project > Project Settings > Plugins`.
 ---
 ### 主要功能
 1. 在脚本列表区域显示项目中所有的 GDScript 脚本
