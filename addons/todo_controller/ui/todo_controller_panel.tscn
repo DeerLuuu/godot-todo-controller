@@ -150,7 +150,7 @@ size_flags_vertical = 3
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 4
-mouse_filter = 2
+focus_mode = 0
 allow_reselect = true
 allow_rmb_select = true
 scroll_horizontal_enabled = false
@@ -160,6 +160,7 @@ scroll_vertical_enabled = false
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 4
+focus_mode = 0
 allow_reselect = true
 allow_rmb_select = true
 scroll_horizontal_enabled = false
@@ -214,6 +215,7 @@ unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
+focus_mode = 0
 
 [node name="PanelContainer" type="PanelContainer" parent="AnnotationPanelContainer/MarginContainer/HSplitContainer"]
 visible = false
@@ -447,7 +449,7 @@ vertical_alignment = 1
 unique_name_in_owner = true
 custom_minimum_size = Vector2(200, 0)
 layout_mode = 2
-text = "INFO,NOTE,NOTICE,TEST,TESTING"
+text = "INFO,NOTE,NOTICE,TEST,TESTING,VAR,ENUM,FUNC,SIG"
 
 [node name="NoticeColorSetting" type="MarginContainer" parent="SettingPanelContainer/MarginContainer/HBoxContainer/ContextPanelContainer/MarginContainer/ContextScrollContainer/InterfaceDisplayVBox"]
 unique_name_in_owner = true
@@ -490,7 +492,7 @@ vertical_alignment = 1
 unique_name_in_owner = true
 custom_minimum_size = Vector2(200, 0)
 layout_mode = 2
-text = "BUG,DEPRECATED,FIXME,HACK,TASK,TBD,TODO,WARNING"
+text = "BUG,DEPRECATED,FIXME,HACK,TASK,TBD,TODO,WARNING,S_VAR"
 
 [node name="WarningColorSetting" type="MarginContainer" parent="SettingPanelContainer/MarginContainer/HBoxContainer/ContextPanelContainer/MarginContainer/ContextScrollContainer/InterfaceDisplayVBox"]
 unique_name_in_owner = true
