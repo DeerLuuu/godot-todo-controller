@@ -21,7 +21,7 @@ func _input(event: InputEvent) -> void:
 		if get_viewport().gui_get_hovered_control().name == "ScriptRMBPanel": return
 		if get_viewport().gui_get_hovered_control() is Button: return
 		if get_viewport().gui_get_hovered_control() is TextEdit: return
-		if event.button_index == MOUSE_BUTTON_LEFT and event.is_pressed():
+		if event.is_pressed():
 			queue_free()
 
 # TODO 脚本列表右键菜单初始化

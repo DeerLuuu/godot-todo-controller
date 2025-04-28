@@ -349,6 +349,7 @@ func _on_star_script_tree_item_mouse_selected(_mouse_position: Vector2, mouse_bu
 	# 鼠标右键输入
 	if mouse_button_index == MOUSE_BUTTON_RIGHT:
 		if star_script_tree.get_selected().get_text(0) == "收藏脚本": return
+		current_tree = star_script_tree
 		var selected_script : String = star_list[current_tree.get_selected().get_index()]
 
 		for i in ex_control.get_children():
@@ -465,6 +466,8 @@ func _on_script_tree_item_mouse_selected(mouse_position: Vector2, mouse_button_i
 	# 鼠标右键输入
 	if mouse_button_index == MOUSE_BUTTON_RIGHT:
 		if script_tree.get_selected().get_text(0) == "所有脚本": return
+		current_tree = script_tree
+
 		var selected_script : String = script_list[script_tree.get_selected().get_index()]
 
 		for i in ex_control.get_children():
