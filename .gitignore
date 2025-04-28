@@ -2,3 +2,7 @@
 .godot/
 /android/
 addons/todo_controller/config/config.tres
+
+*.godot
+icon.svg
+icon.svg.import
