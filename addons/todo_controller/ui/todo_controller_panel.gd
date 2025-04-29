@@ -30,7 +30,6 @@ var black_list : Array:
 	set(v):
 		black_list = v
 		save_config()
-
 var black_dirs : Array = []:
 	set(v):
 		black_dirs = v
@@ -73,15 +72,31 @@ var current_tree : Tree
 @onready var add_black_bar_button: Button = %AddBlackBarButton
 @onready var blacklist_bar_v_box: VBoxContainer = %BlacklistBarVBox
 
+@onready var script_list_sort_setting: MarginContainer = %ScriptListSortSetting
+@onready var script_list_sort_option_button: OptionButton = %ScriptListSortOptionButton
+
 # INFO 设置选项
 # 大小写
-var is_case_sensitive : bool = false
+var is_case_sensitive : bool = false:
+	set(v):
+		is_case_sensitive = v
+		save_config()
 # 大小写默认值
-var case_sensitive_default : bool = false
+var case_sensitive_default : bool = false:
+	set(v):
+		case_sensitive_default = v
+		is_case_sensitive = case_sensitive_default
+		case_sensitive_button.button_pressed = is_case_sensitive
 # 行号显示
-var line_number_show : bool = true
+var line_number_show : bool = true:
+	set(v):
+		line_number_show = v
+		save_config()
 # 完整路径
-var complete_path_show : bool = false
+var complete_path_show : bool = false:
+	set(v):
+		complete_path_show = v
+		save_config()
 # 脚本简介字典
 var script_tool_tip_list : Dictionary = {}:
 	set(v):
@@ -89,6 +104,22 @@ var script_tool_tip_list : Dictionary = {}:
 		save_config()
 		update_star_script_tree()
 		update_script_tree()
+# 脚本元数据
+var script_list_meta : Dictionary = {}:
+	set(v):
+		script_list_meta = v
+		save_config()
+		sort_script_list()
+		update_script_tree()
+		update_star_script_tree()
+# 脚本列表脚本排序模式
+var script_list_sort_mode : Config.ScriptListSortMode:
+	set(v):
+		script_list_sort_mode = v
+		save_config()
+		sort_script_list()
+		update_script_tree()
+		update_star_script_tree()
 
 func _ready() -> void:
 	# NOTE Todo 管理器的初始化内容
@@ -117,6 +148,9 @@ func _ready() -> void:
 	update_black_bar_v_box()
 
 	case_sensitive_button.button_pressed = case_sensitive_default
+	line_number_show_setting_check.button_pressed = line_number_show
+	complete_path_check.button_pressed = complete_path_show
+	script_list_sort_option_button.selected = script_list_sort_mode
 
 	# NOTE 设置的初始化内容
 	interface_display_button.pressed.connect(_on_interface_display_button_pressed)
@@ -142,6 +176,8 @@ func _ready() -> void:
 
 	add_black_bar_button.pressed.connect(_on_add_black_bar_button_pressed)
 
+	script_list_sort_option_button.item_selected.connect(_on_script_list_sort_option_button_item_selected)
+
 	setting_panel_container.visibility_changed.connect(_on_setting_panel_container_visibility_changed)
 
 # NOTE 以下部分为 Todo 管理器 界面的代码
@@ -153,6 +189,27 @@ func script_tree_can_selected() -> void:
 	else :
 		star_script_tree.mouse_filter = Control.MOUSE_FILTER_STOP
 
+# TODO 脚本列表中的脚本元数据更新
+func script_list_meta_update(script_path : String, star_selected_name : String, script_selected_name : String) -> void:
+	# NOTE 记录访问次数和最新访问时间
+	if script_list_meta.has(script_path):
+		var _script_list_meta = script_list_meta
+		var max_change_num : int = -99
+		for i in _script_list_meta:
+			if max_change_num > _script_list_meta[i][1]: continue
+			max_change_num = _script_list_meta[i][1]
+
+		_script_list_meta[script_path][1] = max_change_num + 1
+		_script_list_meta[script_path][0] += 1
+		script_list_meta = _script_list_meta
+
+	var star_index : int = star_list.find(get_annotion_script(star_selected_name.erase(0, 3)))
+	var script_index : int = script_list.find(get_annotion_script(script_selected_name.erase(0, 3)))
+	if star_index != -1:
+		star_script_tree.set_selected(star_script_tree.get_root().get_child(star_index), 0)
+	if script_index != -1:
+		script_tree.set_selected(script_tree.get_root().get_child(script_index), 0)
+
 # TODO 生成脚本列表中的树的方法
 func reset_todo_controller() -> void:
 	script_list = get_scripte_list("res://")
@@ -163,10 +220,28 @@ func reset_todo_controller() -> void:
 	for i in black_list:
 		script_list.erase(i)
 
+	sort_script_list()
+
 	update_star_script_tree()
 	update_script_tree()
 
-# 更新脚本树
+# TODO 根据排序模式排序脚本列表
+func sort_script_list() -> void:
+	match script_list_sort_mode:
+		Config.ScriptListSortMode.CHANGE_TIME:
+			script_list.sort_custom(func(a : String, b : String):
+				return script_list_meta[a][1] > script_list_meta[b][1]
+				)
+		Config.ScriptListSortMode.NAME:
+			script_list.sort_custom(func(a : String, b : String):
+				return a.split("/")[-1] < b.split("/")[-1]
+				)
+		Config.ScriptListSortMode.ACCESS_FREQUENCY:
+			script_list.sort_custom(func(a : String, b : String):
+				return script_list_meta[a][0] > script_list_meta[b][0]
+				)
+
+# TODO 更新脚本树
 func update_script_tree() -> void:
 	script_tree.clear()
 	var root : TreeItem = script_tree.create_item()
@@ -224,6 +299,11 @@ func _on_script_tree_item_activated(tree : Tree) -> void:
 		if not star_script_tree.get_selected().get_text(0) == "收藏脚本":
 			script_path = star_list[star_script_tree.get_selected().get_index()]
 			EditorInterface.edit_resource(load(script_path))
+
+	script_list_meta_update(
+		script_path,
+		star_script_tree.get_selected().get_text(0) if star_script_tree.get_selected() else -1,
+		script_tree.get_selected().get_text(0)if script_tree.get_selected() else -1)
 
 # TODO 树被折叠时的方法
 func _on_item_collapsed(_item : TreeItem) -> void:
@@ -307,6 +387,7 @@ func _on_star_script_tree_item_mouse_selected(_mouse_position: Vector2, mouse_bu
 
 		var root_item : TreeItem = annotation_code_tree.create_item()
 		var script_path : String = star_list[current_tree.get_selected().get_index()].split("/")[-1]
+
 
 		if complete_path_show:
 			script_path = star_list[current_tree.get_selected().get_index()]
@@ -484,6 +565,10 @@ func _on_annotation_code_tree_item_selected() -> void:
 		var script_path : String = get_annotion_script(annotation_code_tree.get_selected().get_text(0))
 
 		EditorInterface.edit_resource(load(script_path))
+		script_list_meta_update(
+			script_path,
+			star_script_tree.get_selected().get_text(0) if star_script_tree.get_selected() else -1,
+			script_tree.get_selected().get_text(0)if script_tree.get_selected() else -1)
 		return
 
 	var key : String
@@ -637,12 +722,23 @@ func load_config() -> void:
 			if i in script_list: continue
 			config.script_tool_tip_list.erase(i)
 
+		for i in config.script_list_meta.keys():
+			if i in script_list: continue
+			config.script_list_meta.erase(i)
+
+		var _script_list_meta = config.script_list_meta
+		for i in script_list:
+			if _script_list_meta.has(i): continue
+			_script_list_meta[i] = [-1, -1]
+
 		star_list = config.star_list
 		black_list = config.black_list
 		black_dirs = config.black_dirs
 		script_tool_tip_list = config.script_tool_tip_list
+		script_list_meta = _script_list_meta
 		complete_path_show = config.complete_path_show
 		case_sensitive_default = config.case_sensitive_default
+		script_list_sort_mode = config.script_list_sort_mode
 
 		line_number_show = config.line_number_show
 
@@ -656,6 +752,8 @@ func save_config() -> void:
 	config.complete_path_show = complete_path_show
 	config.case_sensitive_default = case_sensitive_default
 	config.script_tool_tip_list = script_tool_tip_list
+	config.script_list_meta = script_list_meta
+	config.script_list_sort_mode = script_list_sort_mode
 	ResourceSaver.save(config, "res://addons/todo_controller/config/config.tres")
 
 # TODO 恢复默认设置
@@ -749,6 +847,10 @@ func _on_setting_panel_container_visibility_changed() -> void:
 	line_number_show_setting_check.button_pressed = line_number_show
 	complete_path_check.button_pressed = complete_path_show
 	case_sensitive_check.button_pressed = case_sensitive_default
+
+# TODO 选择脚本列表排序模式
+func _on_script_list_sort_option_button_item_selected(index: int) -> void:
+	script_list_sort_mode = index
 
 # TODO 危急列表编辑完成
 func _on_critical_list_line_editing_toggled(toggled_on: bool) -> void:

@@ -58,11 +58,12 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-current_tab = 0
+current_tab = 1
 script = ExtResource("1_17i0j")
 
 [node name="AnnotationPanelContainer" type="PanelContainer" parent="."]
 unique_name_in_owner = true
+visible = false
 layout_mode = 2
 metadata/_tab_index = 0
 metadata/_tab_name = "TODO管理器"
@@ -245,7 +246,6 @@ size_flags_vertical = 0
 
 [node name="SettingPanelContainer" type="PanelContainer" parent="."]
 unique_name_in_owner = true
-visible = false
 layout_mode = 2
 metadata/_tab_index = 1
 metadata/_tab_name = "设置"
@@ -421,6 +421,40 @@ size_flags_horizontal = 3
 unique_name_in_owner = true
 layout_mode = 2
 text = "开启/关闭"
+
+[node name="ScriptListSortSetting" type="MarginContainer" parent="SettingPanelContainer/MarginContainer/HBoxContainer/ContextPanelContainer/MarginContainer/ContextScrollContainer/InterfaceDisplayVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_right = 8
+
+[node name="HBoxContainer" type="HBoxContainer" parent="SettingPanelContainer/MarginContainer/HBoxContainer/ContextPanelContainer/MarginContainer/ContextScrollContainer/InterfaceDisplayVBox/ScriptListSortSetting"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="SettingPanelContainer/MarginContainer/HBoxContainer/ContextPanelContainer/MarginContainer/ContextScrollContainer/InterfaceDisplayVBox/ScriptListSortSetting/HBoxContainer"]
+custom_minimum_size = Vector2(150, 0)
+layout_mode = 2
+text = "脚本列表排序模式"
+vertical_alignment = 1
+
+[node name="Control" type="Control" parent="SettingPanelContainer/MarginContainer/HBoxContainer/ContextPanelContainer/MarginContainer/ContextScrollContainer/InterfaceDisplayVBox/ScriptListSortSetting/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="ScriptListSortOptionButton" type="OptionButton" parent="SettingPanelContainer/MarginContainer/HBoxContainer/ContextPanelContainer/MarginContainer/ContextScrollContainer/InterfaceDisplayVBox/ScriptListSortSetting/HBoxContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(120, 0)
+layout_mode = 2
+selected = 0
+item_count = 4
+popup/item_0/text = "默认"
+popup/item_0/id = 0
+popup/item_1/text = "修改时间"
+popup/item_1/id = 1
+popup/item_2/text = "名称"
+popup/item_2/id = 2
+popup/item_3/text = "访问频率"
+popup/item_3/id = 3
 
 [node name="Label" type="Label" parent="SettingPanelContainer/MarginContainer/HBoxContainer/ContextPanelContainer/MarginContainer/ContextScrollContainer/InterfaceDisplayVBox"]
 layout_mode = 2

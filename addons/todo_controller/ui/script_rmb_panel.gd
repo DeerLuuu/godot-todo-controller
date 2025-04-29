@@ -75,6 +75,10 @@ func _on_un_star_button_pressed() -> void:
 # TODO 点击打开脚本按钮的方法
 func _on_open_script_button_pressed() -> void:
 	EditorInterface.edit_resource(load(current_script))
+	current_panel.script_list_meta_update(
+		current_script,
+		current_panel.star_script_tree.get_selected().get_text(0) if current_panel.star_script_tree.get_selected() else -1,
+		current_panel.script_tree.get_selected().get_text(0)if current_panel.script_tree.get_selected() else -1)
 	queue_free()
 
 # TODO 点击取消按钮的方法
