@@ -1,10 +1,19 @@
 # INFO 插件配置文件类
 class_name Config extends Resource
 
+enum ScriptListSortMode{
+	DEFAULT,
+	CHANGE_TIME,
+	NAME,
+	ACCESS_FREQUENCY
+}
+
 @export var star_list : Array
 @export var black_list : Array
 @export var black_dirs : Array
 @export var script_tool_tip_list : Dictionary
+@export var script_list_meta : Dictionary
+@export var script_list_sort_mode : ScriptListSortMode
 @export var line_number_show : bool
 @export var complete_path_show : bool
 @export var case_sensitive_default : bool
