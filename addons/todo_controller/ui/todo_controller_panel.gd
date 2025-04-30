@@ -227,19 +227,29 @@ func reset_todo_controller() -> void:
 
 # TODO 根据排序模式排序脚本列表
 func sort_script_list() -> void:
+	#print(script_list_sort_mode)
 	match script_list_sort_mode:
 		Config.ScriptListSortMode.CHANGE_TIME:
 			script_list.sort_custom(func(a : String, b : String):
 				return script_list_meta[a][1] > script_list_meta[b][1]
 				)
+			star_list.sort_custom(func(a : String, b : String):
+				return script_list_meta[a][1] > script_list_meta[b][1]
+			)
 		Config.ScriptListSortMode.NAME:
 			script_list.sort_custom(func(a : String, b : String):
 				return a.split("/")[-1] < b.split("/")[-1]
 				)
+			star_list.sort_custom(func(a : String, b : String):
+				return a.split("/")[-1] < b.split("/")[-1]
+			)
 		Config.ScriptListSortMode.ACCESS_FREQUENCY:
 			script_list.sort_custom(func(a : String, b : String):
 				return script_list_meta[a][0] > script_list_meta[b][0]
 				)
+			star_list.sort_custom(func(a : String, b : String):
+				return script_list_meta[a][0] > script_list_meta[b][0]
+			)
 
 # TODO 更新脚本树
 func update_script_tree() -> void:
@@ -302,8 +312,8 @@ func _on_script_tree_item_activated(tree : Tree) -> void:
 
 	script_list_meta_update(
 		script_path,
-		star_script_tree.get_selected().get_text(0) if star_script_tree.get_selected() else -1,
-		script_tree.get_selected().get_text(0)if script_tree.get_selected() else -1)
+		star_script_tree.get_selected().get_text(0) if star_script_tree.get_selected() else "",
+		script_tree.get_selected().get_text(0)if script_tree.get_selected() else "")
 
 # TODO 树被折叠时的方法
 func _on_item_collapsed(_item : TreeItem) -> void:
@@ -324,7 +334,11 @@ func _on_star_script_tree_item_mouse_selected(_mouse_position: Vector2, mouse_bu
 		current_tree = star_script_tree
 		annotation_code_tree.clear()
 
-		var file = FileAccess.open(star_list[current_tree.get_selected().get_index()], FileAccess.READ)
+		var file
+		if current_tree.get_selected():
+			file = FileAccess.open(star_list[current_tree.get_selected().get_index()], FileAccess.READ)
+		else :
+			return
 		var script_text : String = file.get_as_text()
 		var script_rows : Array = script_text.split("\n")
 
@@ -445,7 +459,11 @@ func _on_script_tree_item_mouse_selected(mouse_position: Vector2, mouse_button_i
 	if mouse_button_index == MOUSE_BUTTON_LEFT:
 		current_tree = script_tree
 		annotation_code_tree.clear()
-		var file = FileAccess.open(script_list[current_tree.get_selected().get_index()], FileAccess.READ)
+		var file
+		if current_tree.get_selected():
+			file = FileAccess.open(script_list[current_tree.get_selected().get_index()], FileAccess.READ)
+		else :
+			return
 		var script_text : String = file.get_as_text()
 		var script_rows : Array = script_text.split("\n")
 
