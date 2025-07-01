@@ -786,9 +786,9 @@ func reset_config() -> void:
 
 	var setting = EditorInterface.get_editor_settings()
 	setting.set_setting("text_editor/theme/highlighting/comment_markers/critical_list", "ALERT,ATTENTION,CAUTION,CRITICAL,DANGER,SECURITY")
-	await get_tree().create_timer(.5)
+	await get_tree().create_timer(.5).timeout
 	setting.set_setting("text_editor/theme/highlighting/comment_markers/warning_list", "BUG,DEPRECATED,FIXME,HACK,TASK,TBD,TODO,WARNING")
-	await get_tree().create_timer(.5)
+	await get_tree().create_timer(.5).timeout
 	setting.set_setting("text_editor/theme/highlighting/comment_markers/notice_list", "INFO,NOTE,NOTICE,TEST,TESTING")
 
 	load_list_in_setting()
