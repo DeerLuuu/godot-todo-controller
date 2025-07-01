@@ -1,6 +1,8 @@
 @tool
 # INFO 脚本列表右键菜单面板类
-class_name ScriptRMBPanel extends PanelContainer
+extends PanelContainer
+
+const TodoControllerPanel = preload("res://addons/todo_controller/ui/todo_controller_panel.gd")
 
 var open_script_button: Button
 var cancel_button: Button

@@ -1,7 +1,10 @@
 @tool
 # INFO Todo Controller 的主要面板类
-class_name TodoControllerPanel extends TabContainer
+extends TabContainer
 
+const Config = preload("res://addons/todo_controller/config.gd")
+const ScriptRMBPanel = preload("res://addons/todo_controller/ui/script_rmb_panel.gd")
+const BlackBar = preload("res://addons/todo_controller/ui/black_bar.gd")
 const BLACK_BAR = preload("res://addons/todo_controller/ui/black_bar.tscn")
 const SCRIPT_RMB_PANEL = preload("res://addons/todo_controller/ui/script_rmb_panel.tscn")
 const STAR : String = "♥"

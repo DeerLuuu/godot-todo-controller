@@ -1,5 +1,5 @@
 # INFO 插件配置文件类
-class_name Config extends Resource
+extends Resource
 
 enum ScriptListSortMode{
 	DEFAULT,

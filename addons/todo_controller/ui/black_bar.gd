@@ -1,6 +1,6 @@
 # INFO 黑名单条类
 @tool
-class_name BlackBar extends PanelContainer
+extends PanelContainer
 
 var black_label: Label
 var remove_black_bar_button: Button

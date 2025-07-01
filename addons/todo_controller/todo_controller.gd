@@ -2,6 +2,7 @@
 # INFO 插件脚本
 extends EditorPlugin
 
+const TodoControllerPanel = preload("res://addons/todo_controller/ui/todo_controller_panel.gd")
 const TODO_CONTROLLER_PANEL = preload("res://addons/todo_controller/ui/todo_controller_panel.tscn")
 
 var todo_controller_panel : TodoControllerPanel
