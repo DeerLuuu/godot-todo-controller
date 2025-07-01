@@ -786,7 +786,9 @@ func reset_config() -> void:
 
 	var setting = EditorInterface.get_editor_settings()
 	setting.set_setting("text_editor/theme/highlighting/comment_markers/critical_list", "ALERT,ATTENTION,CAUTION,CRITICAL,DANGER,SECURITY")
+	await get_tree().create_timer(.5)
 	setting.set_setting("text_editor/theme/highlighting/comment_markers/warning_list", "BUG,DEPRECATED,FIXME,HACK,TASK,TBD,TODO,WARNING")
+	await get_tree().create_timer(.5)
 	setting.set_setting("text_editor/theme/highlighting/comment_markers/notice_list", "INFO,NOTE,NOTICE,TEST,TESTING")
 
 	load_list_in_setting()
@@ -795,7 +797,7 @@ func reset_config() -> void:
 
 # TODO 赞助按钮
 func _on_afdian_button_pressed() -> void:
-	OS.shell_open("https://afdian.tv/a/zhulu")
+	OS.shell_open("https://afdian.tv/a/deer04")
 
 # TODO 界面显示设置按钮
 func _on_interface_display_button_pressed() -> void:
@@ -834,7 +836,7 @@ func _on_theme_button_pressed() -> void:
 
 # TODO 恢复默认设置按钮
 func _on_recovery_button_pressed() -> void:
-	create_dialog("是否要恢复默认设置", _on_dialog_confirmed, true)
+	create_dialog("是否要恢复默认设置\n（该选项可能照成引擎卡顿）", _on_dialog_confirmed, true)
 
 # TODO 确认恢复设置弹窗的确定按钮
 func _on_dialog_confirmed() -> void:
@@ -922,6 +924,8 @@ func _on_add_black_bar_button_pressed() -> void:
 			var black_file_dir : String = create_black_bar_line.text
 			if create_black_bar_line.text.ends_with("/"):
 				black_file_dir = create_black_bar_line.text.erase(create_black_bar_line.text.length() -1 , create_black_bar_line.text.length())
+			if not create_black_bar_line.text.begins_with("res://"):
+				black_file_dir = "res://" + black_file_dir
 			var _black_dirs : Array = black_dirs
 			_black_dirs.append(black_file_dir)
 			black_dirs = _black_dirs

@@ -618,6 +618,12 @@ unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 36)
 layout_mode = 2
 size_flags_horizontal = 3
+tooltip_text = "文件夹路径格式允许：
+res://addons/
+res://addons
+addons/
+addons
+文件路径请写清楚对应文件的完整路径。"
 placeholder_text = "请输入要加入黑名单的文件/文件夹"
 
 [node name="AddBlackBarButton" type="Button" parent="SettingPanelContainer/MarginContainer/HBoxContainer/ContextPanelContainer/MarginContainer/ContextScrollContainer/BlacklistVBox/MarginContainer/HBoxContainer"]
