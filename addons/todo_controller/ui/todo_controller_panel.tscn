@@ -709,7 +709,7 @@ alignment = 0
 
 [node name="Label5" type="Label" parent="SettingPanelContainer/MarginContainer/HBoxContainer/PluginIntroductionPanel/MarginContainer/ScrollContainer/VBoxContainer"]
 layout_mode = 2
-text = "版本：v1.0.5"
+text = "版本：v1.0.6"
 vertical_alignment = 1
 
 [node name="Label4" type="Label" parent="SettingPanelContainer/MarginContainer/HBoxContainer/PluginIntroductionPanel/MarginContainer/ScrollContainer/VBoxContainer"]
